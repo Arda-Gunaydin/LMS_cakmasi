@@ -42,15 +42,26 @@ Never edit anything under `work/` (the student's own code), other assignments, `
 
 | Student says | Make | Starter file | Size |
 |---|---|---|---|
-| "ödev", "lab", "assignment", a topic only | **Lab** | `starter/LabNN.java` containing only `public class LabNN {\n    \n}` | 6–10 methods or 3–5 small classes, 15–22 checks |
-| "postlab", "post-lab", "homework app", "uygulamalı" | **Postlab** | `starter/<Name>.java` with every required declaration and bodies that `throw new UnsupportedOperationException("Not implemented");` | an app scenario, 18–25 checks |
+| "ödev", "lab", "assignment", a topic only | **Lab** | `starter/LabNN.java` with every required declaration and bodies that `throw new UnsupportedOperationException("Not implemented");`, plus a working `main()` demo (below) | 6–10 methods or 3–5 small classes, 15–22 checks |
+| "postlab", "post-lab", "homework app", "uygulamalı" | **Postlab** | `starter/<Name>.java`, same stub pattern, plus `provided/` (below) | an app scenario, 18–25 checks |
 
 `NN` is the next free two-digit number (look at the `order` values of the existing assignments;
 `order` = NN). The folder id is `labNN-<topic-in-kebab-case>` or `postlabNN-<topic>`.
 
-A **Lab** is written from an empty class, like the course's Lab00/Lab01: the description lists
-every signature. Static-method labs start with a "The N methods you have to write" box. OOP labs
-(interfaces, abstract classes, generics) describe each type with Fields / Constructor / Methods tables.
+**A Lab's starter is never a bare empty class.** Every method and constructor the description
+requires is already declared, with a body that only throws
+`new UnsupportedOperationException("Not implemented")`; the student fills in the bodies, never
+adds signatures. The one file also ends with a working `public static void main(String[] args)`
+that calls the student's own methods with example values and prints the results (wrap it in
+`try { ... } catch (UnsupportedOperationException e) { print which method stopped it }`, the way
+`assignments/lab02-arrays/starter/Lab02.java` does — read that file once as the exact template).
+This is what makes the Run button useful before anything is implemented, and it is how the real
+course ships its labs; do not fall back to `public class LabNN {\n    \n}` for a normal lab. (The
+one exception is a literal open-ended "sandbox" assignment with no fixed methods at all, which a
+student would ask for by name, not by naming a topic.) Static-method labs describe each method in
+a `<h3>` + table like `assignments/lab02-arrays/description.html`'s Part 1. OOP labs (interfaces,
+abstract classes, generics) describe each type with Fields / Constructor / Methods tables, the way
+`assignments/lab03-stack/` (ArrayStack) and `assignments/lab04-bst/` (BST) do.
 
 A **Postlab** is an application story (a shop, a bill splitter, a playlist, a parking garage…).
 `provided/` holds a complete, runnable application (`<Name>App.java` with `main`: a Swing window
