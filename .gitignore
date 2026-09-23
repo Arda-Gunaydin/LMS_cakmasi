@@ -1,0 +1,18 @@
+# Personal data: your own code, grades and name
+work/*
+!work/.keep
+settings.json
+
+# AI assistants' temporary reference solutions (never publish)
+.scratch/
+
+# Course material copied from the university LMS: keep it local, do not publish
+assignments/lab01-library/
+
+# Build and OS files
+*.class
+.DS_Store
+.idea/
+*.iml
+.vscode/
+web/vendor/
