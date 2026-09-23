@@ -41,8 +41,8 @@ cd VPL-Lab
 
 Tarayıcıda http://127.0.0.1:8080 kendiliğinden açılır. Kapatmak için terminalde `Ctrl+C`.
 
-Sağ üstte görünen adını değiştirmek için `settings.example.json` dosyasını `settings.json` adıyla
-kopyalayıp adını yaz.
+Sağ üstte görünen ad `settings.json` dosyasındaki `userName` alanından gelir. Kendi adını yazmak için
+bu dosyayı düzenle.
 
 ## Kullanım
 

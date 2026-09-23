@@ -1,7 +1,6 @@
-# Personal data: your own code, grades and name
+# Personal data: your own code and grades (settings.json with the display name is committed on purpose)
 work/*
 !work/.keep
-settings.json
 
 # AI assistants' temporary reference solutions (never publish)
 .scratch/
