@@ -11,6 +11,16 @@ talimat dosyalarında yazılı; yapay zekâ ödevi aynı formatta yazar ve kendi
 > Resmi bir araç değildir, hiçbir üniversiteyle bağlantısı yoktur. Kendi pratiğin içindir.
 > Okulun gerçek ödev metinlerini, test dosyalarını ya da çözümleri bu repoya koyup paylaşma.
 
+## Nasıl görünüyor
+
+Ödev listesi:
+
+![Ödevler sayfası](docs/odevler.png)
+
+Editör ve Evaluate sonrası okuldaki gibi not raporu (Yorumlar):
+
+![Editör ve değerlendirme](docs/editor.png)
+
 ## Kurulum
 
 Gereken tek şey **Java 11 veya üstü (JDK)**. `java -version` ile kontrol edebilirsin.
