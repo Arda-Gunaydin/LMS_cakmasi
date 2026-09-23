@@ -17,7 +17,7 @@ Gereken tek şey **Java 11 veya üstü (JDK)**. `java -version` ile kontrol edeb
 JDK yoksa: [Adoptium](https://adoptium.net) ya da IntelliJ'de *Project Structure → SDK → Download JDK*.
 
 ```bash
-git clone <bu-repo-adresi> VPL-Lab
+git clone https://github.com/Arda-Gunaydin/LMS_cakmasi.git VPL-Lab
 cd VPL-Lab
 ```
 
