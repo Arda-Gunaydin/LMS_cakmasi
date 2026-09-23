@@ -88,13 +88,23 @@ public class VplServer {
 
         HttpServer server = null;
         int port = Integer.getInteger("port", 8080);
-        for (int p = port; p < port + 20; p++) {
-            try {
-                server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), p), 0);
-                port = p;
-                break;
-            } catch (BindException e) {
-                // try the next port
+        for (int p = port; p < port + 20 && server == null; p++) {
+            // The exact requested port gets a few retries with a short wait: right after an
+            // auto-restart (see watchForSelfChanges) the old process may not have released it yet.
+            int attempts = p == port ? 15 : 1;
+            for (int a = 0; a < attempts && server == null; a++) {
+                try {
+                    server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), p), 0);
+                    port = p;
+                } catch (BindException e) {
+                    if (a < attempts - 1) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ignored) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
             }
         }
         if (server == null) {
@@ -109,15 +119,111 @@ public class VplServer {
                 s.kill();
             }
         }));
+        watchForSelfChanges(port);
 
         String url = "http://127.0.0.1:" + port + "/";
         System.out.println("==============================================");
         System.out.println("  VPL-Lab calisiyor:  " + url);
         System.out.println("  Kapatmak icin bu pencerede Ctrl+C");
+        System.out.println("  VplServer.java degisirse sunucu kendini otomatik yeniden baslatir.");
         System.out.println("==============================================");
         if (!Boolean.getBoolean("noBrowser")) {
             openBrowser(url);
         }
+    }
+
+    /**
+     * Watches VplServer.java itself for changes (an AI assistant editing the server, a git pull,
+     * a manual fix) and restarts the process automatically, on the same port, so a stale server
+     * never keeps running mismatched code. Only VplServer.java is watched: assignment files,
+     * description.html and lib/T.java are all read fresh on every request/evaluation and never
+     * need a restart, and restarting on every one of those edits would interrupt students' active
+     * Run sessions for no reason.
+     */
+    static void watchForSelfChanges(int port) {
+        Path self = ROOT.resolve("VplServer.java");
+        if (!Files.isRegularFile(self)) {
+            return;
+        }
+        Thread watcher = new Thread(() -> {
+            try {
+                java.nio.file.WatchService ws = ROOT.getFileSystem().newWatchService();
+                ROOT.register(ws, java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY,
+                        java.nio.file.StandardWatchEventKinds.ENTRY_CREATE);
+                while (true) {
+                    java.nio.file.WatchKey key = ws.take();
+                    boolean touched = false;
+                    for (java.nio.file.WatchEvent<?> ev : key.pollEvents()) {
+                        Object ctx = ev.context();
+                        if (ctx != null && "VplServer.java".equals(ctx.toString())) {
+                            touched = true;
+                        }
+                    }
+                    boolean valid = key.reset();
+                    if (!touched) {
+                        if (!valid) {
+                            return;
+                        }
+                        continue;
+                    }
+                    awaitStable(self);
+                    restartSelf(port);
+                    return;
+                }
+            } catch (Throwable ignored) {
+                // best-effort: if the watcher itself fails, the server just keeps running as before
+            }
+        }, "vpl-self-watch");
+        watcher.setDaemon(true);
+        watcher.start();
+    }
+
+    /** Waits until the file has stopped changing (an editor may write it in several small steps). */
+    static void awaitStable(Path file) {
+        long lastSize = -1;
+        long lastMod = -1;
+        int stable = 0;
+        for (int i = 0; i < 30 && stable < 2; i++) {
+            try {
+                Thread.sleep(150);
+                if (!Files.isRegularFile(file)) {
+                    continue;
+                }
+                long size = Files.size(file);
+                long mod = Files.getLastModifiedTime(file).toMillis();
+                if (size == lastSize && mod == lastMod) {
+                    stable++;
+                } else {
+                    stable = 0;
+                }
+                lastSize = size;
+                lastMod = mod;
+            } catch (IOException | InterruptedException ignored) {
+                // keep waiting
+            }
+        }
+    }
+
+    /** Re-launches "java VplServer.java" on the same port and exits this process. */
+    static void restartSelf(int port) {
+        System.out.println();
+        System.out.println("==============================================");
+        System.out.println("  VplServer.java degisti: sunucu yeniden baslatiliyor...");
+        System.out.println("==============================================");
+        try {
+            String javaBin = ProcessHandle.current().info().command().orElse("java");
+            List<String> cmd = new ArrayList<>();
+            cmd.add(javaBin);
+            cmd.add("-Dport=" + port);
+            cmd.add("-DnoBrowser=true");
+            cmd.add(ROOT.resolve("VplServer.java").toString());
+            new ProcessBuilder(cmd).directory(ROOT.toFile()).inheritIO().start();
+        } catch (Exception e) {
+            System.out.println("Otomatik yeniden baslatma basarisiz oldu: " + e.getMessage());
+            System.out.println("Elle yeniden baslat: bu pencerede Ctrl+C, sonra tekrar calistir.");
+            return;
+        }
+        System.exit(0);
     }
 
     static void openBrowser(String url) {

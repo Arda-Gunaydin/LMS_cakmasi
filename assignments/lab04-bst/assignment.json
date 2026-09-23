@@ -1,0 +1,8 @@
+{
+  "title": "Lab04",
+  "course": "CSE201 DATA STRUCTURES",
+  "subtitle": "Lab 4: Binary Search Trees",
+  "topic": "binary search trees",
+  "order": 4,
+  "testClassName": "Lab_TestTemplate"
+}
