@@ -1,0 +1,214 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures</div>
+<div class="vd-title">Lab 5: Queues</div>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>queue</strong> is a first-in-first-out (FIFO) collection: items are added at the back
+(<code>enqueue</code>) and removed from the front (<code>dequeue</code>), so the item that has waited
+longest leaves first. In this lab you build two queues from scratch, a circular array queue and a linked
+queue, and then use them to solve two classic queue problems: the hot potato elimination game and generating
+binary numbers.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Implementing a generic queue on a circular array with a moving <code>front</code> index</li>
+  <li>Growing a circular array without breaking the order of its items</li>
+  <li>Keeping both a <code>head</code> and a <code>tail</code> reference correct in a linked queue</li>
+  <li>Solving a problem by moving items between the front and the back of a queue</li>
+</ul>
+
+<div class="vd-sigs">
+<div class="vd-sigs-title">The 2 static methods you have to write</div>
+<div class="vd-sigs-list">
+<div>public static String hotPotato(String[] players, int k)</div>
+<div>public static String[] generateBinary(int n)</div>
+</div>
+</div>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>Files</h2>
+<div class="vd-table"><table>
+  <thead><tr><th>File</th><th>Description</th></tr></thead><tbody>
+  <tr><td><code>Lab05.java</code></td><td>Your deliverable. It already contains every declaration; fill in the bodies. Its <code>main</code> is a playground for the Run button and is not graded.</td></tr>
+</tbody></table></div>
+<p>Only <code>Lab05.java</code> should be submitted.</p>
+
+<h2>Running the Application</h2>
+<ol>
+  <li>Run (rocket): compiles your file and starts <code>Lab05.main</code> in the console.</li>
+  <li>Evaluate (check box): runs the hidden tests and shows your proposed grade.</li>
+</ol>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Place all required types in <code>Lab05.java</code>. Only <code>Lab05</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Do not use any <code>java.util</code> collection class &mdash; no <code>Queue</code>, <code>Deque</code>,
+  <code>ArrayDeque</code>, <code>LinkedList</code>, <code>ArrayList</code>, <code>Stack</code>, <code>Vector</code>,
+  <code>PriorityQueue</code> or any other built-in collection. Do not use <code>java.util.Arrays</code> either:
+  copy arrays with your own loops.</li>
+  <li>You may use <code>java.util.NoSuchElementException</code>, since <code>dequeue()</code> and
+  <code>peek()</code> are required to throw it &mdash; that is an exception class, not a collection.</li>
+  <li>All fields of <code>CircularQueue</code> and <code>LinkedQueue</code> must be private.</li>
+  <li><code>hotPotato</code> and <code>generateBinary</code> must be solved with one of your own queues.</li>
+  <li>Do not print from the required methods.</li>
+</ul>
+
+<h2>Part 1: CircularQueue&lt;T&gt;</h2>
+<p>Create <code>class CircularQueue&lt;T&gt;</code>. It stores its items in a private array that is used as a
+<strong>circle</strong>: when the end of the array is reached, the next item goes to index <code>0</code> if that slot is
+free. No item is ever shifted to the left. The queue only remembers where the front is.</p>
+
+<h3>Fields</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead><tbody>
+  <tr><td><code>items</code></td><td><code>T[]</code></td><td>The internal array. Its length is the capacity. Create it with <code>(T[]) new Object[capacity]</code>. Slots that hold no item must be <code>null</code>.</td></tr>
+  <tr><td><code>front</code></td><td><code>int</code></td><td>The index in <code>items</code> of the item at the front of the queue. Starts at <code>0</code>.</td></tr>
+  <tr><td><code>size</code></td><td><code>int</code></td><td>The number of items in the queue.</td></tr>
+</tbody></table></div>
+
+<h3>Constructors</h3>
+<ul>
+  <li><code>CircularQueue(int initialCapacity)</code>: the internal array starts with this length.
+  <code>initialCapacity</code> must be at least 1, otherwise <code>IllegalArgumentException</code>.</li>
+  <li><code>CircularQueue()</code>: the same as <code>CircularQueue(8)</code>.</li>
+</ul>
+
+<h3>Methods</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>enqueue(T item)</code></td><td><code>void</code></td><td>Adds <code>item</code> at the back. The back slot is <code>(front + size) % items.length</code>. <code>null</code> causes <code>IllegalArgumentException</code>. When the array is full, first replaces it with an array of <strong>twice</strong> the length that holds the same items in the same order, <strong>starting at index 0</strong>, and sets <code>front</code> to <code>0</code>.</td></tr>
+  <tr><td><code>dequeue()</code></td><td><code>T</code></td><td>Removes and returns the front item. Sets the freed slot back to <code>null</code> and moves <code>front</code> one step forward, wrapping to <code>0</code> at the end of the array. On an empty queue, throws <code>java.util.NoSuchElementException</code>. Does not shrink the array.</td></tr>
+  <tr><td><code>peek()</code></td><td><code>T</code></td><td>Returns the front item without removing it. On an empty queue, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when the queue has no items.</td></tr>
+  <tr><td><code>size()</code></td><td><code>int</code></td><td>Number of items currently in the queue.</td></tr>
+  <tr><td><code>capacity()</code></td><td><code>int</code></td><td>Current length of the internal array.</td></tr>
+  <tr><td><code>toString()</code></td><td><code>String</code></td><td>The items from front to back, for example after <code>enqueue(10)</code>, <code>enqueue(20)</code>, <code>enqueue(30)</code>: <code>[10, 20, 30]</code> (the first element shown is the front). An empty queue gives <code>[]</code>.</td></tr>
+</tbody></table></div>
+
+<h3>Example</h3>
+<pre><code>CircularQueue&lt;Integer&gt; q = new CircularQueue&lt;&gt;(4);
+q.enqueue(1); q.enqueue(2); q.enqueue(3); q.enqueue(4);
+// items = [1, 2, 3, 4]        front = 0   size = 4   capacity 4
+q.dequeue();                   // returns 1
+q.dequeue();                   // returns 2
+// items = [null, null, 3, 4]  front = 2   size = 2
+q.enqueue(5);
+q.enqueue(6);
+// items = [5, 6, 3, 4]        front = 2   size = 4   (5 and 6 wrapped around)
+// toString() is [3, 4, 5, 6]  and capacity() is still 4
+q.enqueue(7);                  // full: the array grows to 8 and is copied in queue order
+// items = [3, 4, 5, 6, 7, null, null, null]   front = 0   size = 5   capacity 8</code></pre>
+
+<h2>Part 2: LinkedQueue&lt;T&gt;</h2>
+<p>Create <code>class LinkedQueue&lt;T&gt;</code>. It is built from singly linked nodes, uses no array, and has no
+capacity: it grows by one node per item. The starter already contains the private inner class <code>Node</code>.</p>
+
+<h3>Fields</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead><tbody>
+  <tr><td><code>head</code></td><td><code>Node</code></td><td>The node at the front of the queue (the next one to be dequeued), or <code>null</code> when the queue is empty.</td></tr>
+  <tr><td><code>tail</code></td><td><code>Node</code></td><td>The node at the back of the queue (the most recently enqueued), or <code>null</code> when the queue is empty.</td></tr>
+  <tr><td><code>size</code></td><td><code>int</code></td><td>The number of items in the queue.</td></tr>
+</tbody></table></div>
+
+<h3>Constructor</h3>
+<ul>
+  <li><code>LinkedQueue()</code>: creates an empty queue.</li>
+</ul>
+
+<h3>Methods</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>enqueue(T item)</code></td><td><code>void</code></td><td>Adds <code>item</code> at the back in constant time (no loop). <code>null</code> causes <code>IllegalArgumentException</code>.</td></tr>
+  <tr><td><code>dequeue()</code></td><td><code>T</code></td><td>Removes and returns the front item. When the last item is removed, both <code>head</code> and <code>tail</code> must become <code>null</code>. On an empty queue, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>peek()</code></td><td><code>T</code></td><td>Returns the front item without removing it. On an empty queue, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when the queue has no items.</td></tr>
+  <tr><td><code>size()</code></td><td><code>int</code></td><td>Number of items currently in the queue.</td></tr>
+  <tr><td><code>toString()</code></td><td><code>String</code></td><td>The items from front to back in the same format as <code>CircularQueue</code>: <code>[a, b, c]</code>, or <code>[]</code> when empty.</td></tr>
+</tbody></table></div>
+
+<h2>Part 3: Queue Applications</h2>
+<p>Both methods are <code>static</code> methods of <code>Lab05</code>. Each one must use one of your own queues
+(<code>CircularQueue</code> or <code>LinkedQueue</code>) to do its work.</p>
+
+<h3>hotPotato</h3>
+<div class="vd-sig">public static String hotPotato(String[] players, int k)</div>
+<p>The players stand in a queue in the order of the array, the first player at the front. Each round the
+potato is passed <code>k</code> times: the first <code>k - 1</code> players at the front each move, one at a time,
+to the back of the queue, and the <code>k</code>-th player is eliminated. Rounds are repeated until one player is
+left. Return the name of that last player.</p>
+<ul>
+  <li><code>players</code> is never modified.</li>
+  <li>A single player wins immediately, whatever <code>k</code> is.</li>
+  <li><code>k</code> may be larger than the number of players.</li>
+  <li><code>null</code>, an empty array, a <code>null</code> element, or <code>k &lt; 1</code> causes <code>IllegalArgumentException</code>.</li>
+</ul>
+<div class="vd-table"><table>
+  <thead><tr><th>Call</th><th>Result</th></tr></thead>
+  <tbody>
+  <tr><td><code>hotPotato(["A", "B", "C", "D"], 3)</code></td><td><code>"A"</code></td></tr>
+  <tr><td><code>hotPotato(["A", "B", "C"], 1)</code></td><td><code>"C"</code></td></tr>
+  <tr><td><code>hotPotato(["Solo"], 4)</code></td><td><code>"Solo"</code></td></tr>
+  <tr><td><code>hotPotato(["A", "B"], 0)</code></td><td><code>IllegalArgumentException</code></td></tr>
+  </tbody></table></div>
+
+<h3>generateBinary</h3>
+<div class="vd-sig">public static String[] generateBinary(int n)</div>
+<p>Returns a new array of length <code>n</code> whose element at index <code>i</code> is the binary representation of
+<code>i + 1</code>, without leading zeros. Do not use <code>Integer.toBinaryString</code> or any conversion
+method. Generate the values with a queue: start with <code>"1"</code> in the queue; to produce each value,
+dequeue a string <code>s</code>, store it, then enqueue <code>s + "0"</code> and <code>s + "1"</code>.
+<code>n &lt; 1</code> causes <code>IllegalArgumentException</code>.</p>
+<div class="vd-table"><table>
+  <thead><tr><th>Call</th><th>Result</th></tr></thead>
+  <tbody>
+  <tr><td><code>generateBinary(1)</code></td><td><code>["1"]</code></td></tr>
+  <tr><td><code>generateBinary(5)</code></td><td><code>["1", "10", "11", "100", "101"]</code></td></tr>
+  <tr><td><code>generateBinary(0)</code></td><td><code>IllegalArgumentException</code></td></tr>
+  </tbody></table></div>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li><code>dequeue()</code> and <code>peek()</code> on an empty queue, in both classes</li>
+  <li>A <code>CircularQueue</code> whose items wrap around the end of the array, both for <code>toString()</code> and for <code>dequeue()</code></li>
+  <li>Growing a <code>CircularQueue</code> while its items are wrapped, and a <code>CircularQueue(1)</code> that grows several times</li>
+  <li>A <code>LinkedQueue</code> that becomes empty and is then used again (<code>tail</code> must not point to a removed node)</li>
+  <li><code>hotPotato</code> with <code>k = 1</code>, one player, and <code>k</code> larger than the number of players</li>
+  <li>Invalid arguments: <code>null</code> items, capacity below 1, <code>k &lt; 1</code>, <code>n &lt; 1</code></li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li>Write <code>LinkedQueue</code> first: it has the fewest details. Test it with the playground in <code>main</code>.</li>
+  <li>Write <code>CircularQueue</code> without growing: constructor, <code>enqueue</code> into a non-full queue, <code>dequeue</code>, <code>peek</code>, <code>toString</code>.</li>
+  <li>Make <code>enqueue</code> and <code>toString</code> use the wrap-around index <code>(front + i) % items.length</code>.</li>
+  <li>Add growing, and check it with a queue whose front is not at index <code>0</code>.</li>
+  <li>Write <code>generateBinary</code>, then <code>hotPotato</code>.</li>
+</ol>
+
+<div class="vd-box">
+  <h2>Before Submission</h2>
+  <p>Confirm that:</p>
+  <ul>
+    <li>The file is named <code>Lab05.java</code>, compiles, and declares only <code>Lab05</code> as public.</li>
+    <li>No <code>java.util</code> collection or <code>Arrays</code> appears anywhere in your file.</li>
+    <li>All fields of both queues are private.</li>
+    <li>Growing keeps the queue order and puts the front item at index <code>0</code>.</li>
+    <li><code>hotPotato</code> and <code>generateBinary</code> use your own queue.</li>
+    <li>Evaluate shows all checks passing.</li>
+  </ul>
+</div>
+
+</div>

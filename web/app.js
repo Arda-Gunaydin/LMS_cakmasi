@@ -217,7 +217,7 @@ async function renderList() {
         <a class="btn primary" href="#/a/${enc(a.id)}/edit">${ic('code', false)} Düzenle</a>
       </div>`).join('') + '</div>';
   }
-  const hint = `<p class="newhint">Yeni ödev eklemek için: bu klasörü bir yapay zekâ aracında (Claude Code, Cursor, Copilot…) aç, konuyu söyle — örn. <em>"stack ödevi hazırla"</em> — sonra sayfayı yenile.</p>`;
+  const hint = `<p class="newhint">Yeni ödev eklemek için: bu klasörü bir yapay zekâ aracında (Claude Code, Cursor, Copilot…) aç, konuyu söyle — örn. <em>"bu site için stack ödevi hazırla"</em> — sonra sayfayı yenile.</p>`;
   app().innerHTML = navbar() + `<div class="page"><div class="ptitle"><h1>Ödevler</h1></div>${body}${list.length ? hint : ''}</div>`;
 }
 
