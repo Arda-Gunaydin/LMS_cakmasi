@@ -1,0 +1,8 @@
+{
+  "title": "Lab03",
+  "course": "CSE201 DATA STRUCTURES",
+  "subtitle": "Lab 3: Stacks",
+  "topic": "stacks",
+  "order": 3,
+  "testClassName": "Lab_TestTemplate"
+}

@@ -1,0 +1,126 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures</div>
+<div class="vd-title">Lab 3: Stacks</div>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>stack</strong> is a last-in-first-out (LIFO) collection: the last item pushed is the first
+one popped. In this lab you build your own array-based stack, <code>ArrayStack&lt;T&gt;</code>, and then
+use it to solve two classic stack problems: checking that brackets are balanced, and evaluating a
+postfix (Reverse Polish Notation) arithmetic expression.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Implementing a generic, growable, array-backed collection</li>
+  <li>Choosing between <code>push</code>/<code>pop</code>/<code>peek</code> to solve a problem, instead of indexing directly</li>
+  <li>Reading exceptions from an empty or malformed structure as part of the contract, not as bugs</li>
+</ul>
+
+<h2>Files</h2>
+<div class="vd-table"><table>
+  <thead><tr><th>File</th><th>Description</th></tr></thead><tbody>
+  <tr><td><code>Lab03.java</code></td><td>Your deliverable. It already contains every declaration; fill in the bodies. Its <code>main</code> is a playground for the Run button and is not graded.</td></tr>
+</tbody></table></div>
+<p>Only <code>Lab03.java</code> should be submitted.</p>
+
+<h2>Running the Application</h2>
+<ol>
+  <li>Run (rocket): compiles your file and starts <code>Lab03.main</code> in the console.</li>
+  <li>Evaluate (check box): runs the hidden tests and shows your proposed grade.</li>
+</ol>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Place all required types in <code>Lab03.java</code>. Only <code>Lab03</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Do not use any <code>java.util</code> collection class &mdash; no <code>java.util.Stack</code>,
+  <code>ArrayDeque</code>, <code>Deque</code>, <code>LinkedList</code>, <code>ArrayList</code>, <code>Vector</code> or
+  any other built-in collection. <code>ArrayStack</code> must be your own array-based implementation, and
+  <code>isBalanced</code> / <code>evaluatePostfix</code> must solve their problem using <strong>only</strong> your
+  <code>ArrayStack</code>. (You may use <code>java.util.NoSuchElementException</code>, since <code>pop()</code> and
+  <code>peek()</code> are required to throw it &mdash; that is an exception class, not a collection.)</li>
+  <li>All <code>ArrayStack</code> fields must be private.</li>
+  <li>Do not print from the required methods.</li>
+</ul>
+
+<h2>Part 1: ArrayStack&lt;T&gt;</h2>
+<p>Create <code>class ArrayStack&lt;T&gt;</code>. It stores its items in a private array and keeps a separate
+private <code>size</code>, the same growing pattern as an <code>ArrayList</code>: the array only grows, and only
+by doubling.</p>
+
+<h3>Constructors</h3>
+<ul>
+  <li><code>ArrayStack(int initialCapacity)</code>: the internal array starts with this length.
+  <code>initialCapacity</code> must be at least 1, otherwise <code>IllegalArgumentException</code>.</li>
+  <li><code>ArrayStack()</code>: the same as <code>ArrayStack(8)</code>.</li>
+</ul>
+
+<h3>Methods</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>push(T item)</code></td><td><code>void</code></td><td>Puts <code>item</code> on top of the stack. <code>null</code> causes <code>IllegalArgumentException</code>. When the array is full, first replaces it with an array of <strong>twice</strong> the length that holds the same items in the same order.</td></tr>
+  <tr><td><code>pop()</code></td><td><code>T</code></td><td>Removes and returns the top item. On an empty stack, throws <code>java.util.NoSuchElementException</code>. Does not shrink the array.</td></tr>
+  <tr><td><code>peek()</code></td><td><code>T</code></td><td>Returns the top item without removing it. On an empty stack, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when the stack has no items.</td></tr>
+  <tr><td><code>size()</code></td><td><code>int</code></td><td>Number of items currently on the stack.</td></tr>
+  <tr><td><code>capacity()</code></td><td><code>int</code></td><td>Current length of the internal array.</td></tr>
+  <tr><td><code>toString()</code></td><td><code>String</code></td><td>The items from bottom to top, for example after <code>push(10)</code>, <code>push(20)</code>, <code>push(30)</code>: <code>[10, 20, 30]</code> (the last element shown is the top). An empty stack gives <code>[]</code>.</td></tr>
+</tbody></table></div>
+
+<h3>Example</h3>
+<pre><code>ArrayStack&lt;Integer&gt; s = new ArrayStack&lt;&gt;(2);   // size 0, capacity 2
+s.push(10);                                     // [10]            capacity 2
+s.push(20);                                     // [10, 20]        capacity 2
+s.push(30);                                     // [10, 20, 30]    capacity 4  (grew)
+s.peek();                                       // 30, stack unchanged
+s.pop();                                        // returns 30 -&gt; [10, 20]
+s.pop();                                        // returns 20 -&gt; [10]
+s.isEmpty();                                    // false
+s.pop(); s.pop();                               // second pop() throws NoSuchElementException</code></pre>
+
+<h2>Part 2: Stack Applications</h2>
+<p>Both methods are <code>static</code> methods of <code>Lab03</code>, and both must be solved using an
+<code>ArrayStack</code> internally &mdash; not with recursion, indexes into the string, or any other
+collection.</p>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>isBalanced(String expr)</code></td><td><code>boolean</code></td><td>Scans <code>expr</code> left to right, looking only at the six bracket characters <code>( ) [ ] { }</code> and ignoring every other character. Every closing bracket must match the <strong>type</strong> of the most recently unmatched opening bracket, and every opening bracket must eventually be closed. <code>null</code> causes <code>IllegalArgumentException</code>.</td></tr>
+  <tr><td><code>evaluatePostfix(String expr)</code></td><td><code>int</code></td><td>Evaluates a postfix (Reverse Polish Notation) expression whose tokens are separated by single spaces: integers (which may start with <code>-</code>, e.g. <code>-3</code>) and the operators <code>+ - * /</code>. Division truncates toward zero, like normal <code>int</code> division. Dividing by zero throws <code>ArithmeticException</code>. <code>null</code>, an empty or blank string, or a malformed expression (too few operands for an operator, or more than one value left at the end) causes <code>IllegalArgumentException</code>.</td></tr>
+</tbody></table></div>
+
+<h3>Examples</h3>
+<pre><code>isBalanced("(a + [b * c])")     -&gt;  true
+isBalanced("(a + [b)]")         -&gt;  false   (] closes ( instead of [)
+isBalanced(")(")                -&gt;  false
+isBalanced("")                  -&gt;  true    (no brackets at all)
+
+evaluatePostfix("3 4 +")        -&gt;  7
+evaluatePostfix("3 4 + 2 *")    -&gt;  14
+evaluatePostfix("6 2 /")        -&gt;  3
+evaluatePostfix("7 -2 *")       -&gt;  -14
+evaluatePostfix("4 0 /")        -&gt;  ArithmeticException
+evaluatePostfix("3 +")          -&gt;  IllegalArgumentException  (only one operand available)
+evaluatePostfix("3 4")          -&gt;  IllegalArgumentException  (two values left, not one)</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li><code>pop()</code> and <code>peek()</code> on an empty stack</li>
+  <li>An <code>ArrayStack</code> with capacity 1 that has to grow several times</li>
+  <li><code>isBalanced</code> with mismatched bracket types, a closing bracket with nothing open, and brackets nested inside other characters</li>
+  <li><code>evaluatePostfix</code> with negative operands, integer division that truncates (for example <code>7 2 /</code> should be <code>3</code>, and <code>-7 2 /</code> should be <code>-3</code>), division by zero, and both kinds of malformed input</li>
+</ul>
+
+<div class="vd-box">
+  <h2>Before Submission</h2>
+  <p>Confirm that:</p>
+  <ul>
+    <li>The file is named <code>Lab03.java</code>, compiles, and declares only <code>Lab03</code> as public.</li>
+    <li>No <code>java.util</code> import or reference appears anywhere in your file.</li>
+    <li>All <code>ArrayStack</code> fields are private.</li>
+    <li><code>isBalanced</code> and <code>evaluatePostfix</code> use your own <code>ArrayStack</code>, not indexes or recursion.</li>
+    <li>Evaluate shows all checks passing.</li>
+  </ul>
+</div>
+
+</div>
