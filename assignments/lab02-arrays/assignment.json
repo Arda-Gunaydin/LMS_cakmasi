@@ -1,8 +1,0 @@
-{
-  "title": "Lab 2: Arrays and the ScoreBook",
-  "course": "CSE201 DATA STRUCTURES",
-  "subtitle": "int[] algorithms, 2D arrays, a growable array",
-  "topic": "Arrays",
-  "order": 2,
-  "runMain": "Lab02"
-}

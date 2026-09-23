@@ -8,6 +8,9 @@ settings.json
 
 # Course material copied from the university LMS: keep it local, do not publish
 assignments/lab01-library/
+assignments/lab02-arrays/
+assignments/lab04-bst/
+assignments/lab05-queues/
 
 # Build and OS files
 *.class

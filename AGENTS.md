@@ -32,7 +32,7 @@ Read these before writing anything, every time:
 
 1. `ASSIGNMENT_FORMAT.md` — the folder format and the `T` test API.
 2. `lib/T.java` — the only API the tests may use (reflection helpers + soft assertions).
-3. `assignments/lab02-arrays/` — a complete, validated example (description, starter, tests).
+3. `assignments/example/` — a complete, validated example (description, starter, tests).
 4. If it exists locally, `assignments/lab01-library/` — an OOP example rebuilt from the real course.
 
 Never edit anything under `work/` (the student's own code), other assignments, `VplServer.java`,
@@ -54,14 +54,14 @@ requires is already declared, with a body that only throws
 adds signatures. The one file also ends with a working `public static void main(String[] args)`
 that calls the student's own methods with example values and prints the results (wrap it in
 `try { ... } catch (UnsupportedOperationException e) { print which method stopped it }`, the way
-`assignments/lab02-arrays/starter/Lab02.java` does — read that file once as the exact template).
+`assignments/example/starter/Lab03.java` does — read that file once as the exact template).
 This is what makes the Run button useful before anything is implemented, and it is how the real
 course ships its labs; do not fall back to `public class LabNN {\n    \n}` for a normal lab. (The
 one exception is a literal open-ended "sandbox" assignment with no fixed methods at all, which a
 student would ask for by name, not by naming a topic.) Static-method labs describe each method in
-a `<h3>` + table like `assignments/lab02-arrays/description.html`'s Part 1. OOP labs (interfaces,
+a `<h3>` + table like `assignments/example/description.html`'s Part 2. OOP labs (interfaces,
 abstract classes, generics) describe each type with Fields / Constructor / Methods tables, the way
-`assignments/lab03-stack/` (ArrayStack) and `assignments/lab04-bst/` (BST) do.
+`assignments/example/` (ArrayStack) does.
 
 A **Postlab** is an application story (a shop, a bill splitter, a playlist, a parking garage…).
 `provided/` holds a complete, runnable application (`<Name>App.java` with `main`: a Swing window

@@ -5,7 +5,7 @@ description: Create a new VPL Lab assignment (lab or postlab) from just a topic 
 
 # New VPL Lab assignment
 
-1. Read `AGENTS.md`, `ASSIGNMENT_FORMAT.md`, `lib/T.java` and `assignments/lab02-arrays/` (and
+1. Read `AGENTS.md`, `ASSIGNMENT_FORMAT.md`, `lib/T.java` and `assignments/example/` (and
    `assignments/lab01-library/` if present).
 2. Decide Lab or Postlab (AGENTS.md table) and the next number from the existing `order` values.
 3. Create `assignments/<id>/`: `assignment.json`, `description.html` (school style), `starter/`,
