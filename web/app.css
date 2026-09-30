@@ -214,6 +214,13 @@ body:not(.fa-ok) .ic .fa { display: none; }
 .dlg .df { padding: 8px 10px; border-top: 1px solid #ddd; display: flex; justify-content: flex-end; gap: 6px; }
 .dlg .df button { background: #f6f6f6; border: 1px solid #c5c5c5; border-radius: 3px; padding: 5px 12px; font-family: var(--ui); font-size: 12px; cursor: pointer; }
 .dlg .df button.primary { font-weight: 700; }
+.dlg.wide { width: min(1000px, 94vw); max-width: none; overflow: hidden; display: flex; flex-direction: column; }
+.dlg.wide .db { padding: 8px; display: flex; flex-direction: column; min-height: 0; }
+.ansview { height: 68vh; border: 1px solid #ddd; position: relative; }
+.ansview pre { margin: 0; height: 100%; overflow: auto; padding: 8px; font-size: 13px; background: #fff; }
+.anstabs { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+.anstabs button { background: #f6f6f6; border: 1px solid #c5c5c5; border-radius: 3px; padding: 3px 10px; font-family: var(--ui); font-size: 12px; cursor: pointer; }
+.anstabs button.on { background: #fff; font-weight: 700; border-bottom-color: #fff; }
 .dlg input[type=text] { width: 100%; padding: 5px 7px; font-size: 13px; border: 1px solid #aaa; border-radius: 3px; font-family: var(--mono); }
 .dlg kbd { font-family: var(--mono); font-size: 11px; background: #f1f1f1; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; }
 .dlg table { border-collapse: collapse; width: 100%; }

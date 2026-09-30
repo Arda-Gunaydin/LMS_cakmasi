@@ -38,6 +38,7 @@ const SVG = {
   'check-square-o': '<svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M7 12.3l3.4 3.4L17.3 8.6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   commenting: '<svg viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.5 3.4 6-.2 1.6-1 3-2.2 4 2.4 0 4.4-.9 5.8-2.2 1 .3 2 .4 3 .4 5.5 0 10-3.6 10-8.1S17.5 3 12 3z" fill="currentColor"/></svg>',
   terminal: '<svg viewBox="0 0 24 24"><path d="M3.5 6.5l6 5.5-6 5.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18.5h9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  'lightbulb-o': '<svg viewBox="0 0 24 24"><path d="M12 2.5a6.5 6.5 0 0 0-3.9 11.7c.8.6 1.2 1.4 1.2 2.3v.5h5.4v-.5c0-.9.4-1.7 1.2-2.3A6.5 6.5 0 0 0 12 2.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9.5 19.5h5M10.5 22h3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
   expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M21 3l-7 7M10 21H3v-7M3 21l7-7"/></svg>',
   compress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10h-6V4M14 10l7-7M4 14h6v6M10 14l-7 7"/></svg>',
   question: '<svg viewBox="0 0 24 24"><path d="M8.6 8.4a3.5 3.5 0 1 1 5.5 2.9c-1.2.8-2.1 1.5-2.1 3.1" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="19" r="1.7" fill="currentColor"/></svg>',
@@ -432,6 +433,7 @@ async function renderEditor(id) {
         <button class="vb" id="bEval" title="Evaluate (Shift-F11)">${ic('check-square-o')} <span class="xh" id="evalCount">${st.evalCount || 0}</span></button>
         <button class="vb" id="bComments" title="Yorumlar">${ic('commenting')}</button>
         <button class="vb" id="bConsole" title="Console">${ic('terminal')}</button>
+        ${d.hasAnswer ? `<button class="vb" id="bAnswer" title="Cevap: kodun çözülmüş hali">${ic('lightbulb-o')}</button>` : ''}
       </span>
       <span class="more">
         <span class="grp">
@@ -494,6 +496,7 @@ async function renderEditor(id) {
   $('#bComments').onclick = () => toggleRight();
   $('#bConsole').onclick = () => showConsole($('#console').classList.contains('hidden'));
   $('#bFull').onclick = toggleFull;
+  if ($('#bAnswer')) $('#bAnswer').onclick = showAnswer;
   $('#bNew').onclick = newFile;
   $('#bDelete').onclick = () => deleteFile(E.cur);
   bindHelpFab();
@@ -845,6 +848,51 @@ function dialog(title, bodyHtml, buttons, onOpen) {
   if (onOpen) setTimeout(onOpen, 20);
   return close;
 }
+// The solved code (answer/ folder), read-only, in a large dialog. The student's own files are not touched.
+async function showAnswer() {
+  let files;
+  try { files = await apiGet(`/api/a/${enc(E.id)}/answer`); } catch (e) { toast('Cevap yüklenemedi'); return; }
+  if (!files || !files.length) { toast('Bu ödevin cevabı yok'); return; }
+  let cur = 0;
+  let viewer = null;
+  const tabs = files.length > 1
+    ? `<div class="anstabs">${files.map((f, i) => `<button data-i="${i}" class="${i ? '' : 'on'}">${esc(f.name)}</button>`).join('')}</div>` : '';
+  const close = dialog('Cevap: ' + files.map((f) => f.name).join(', '), `${tabs}<div class="ansview" id="ansView"></div>`, [
+    { label: 'Kopyala', action: () => { copyText(files[cur].content); toast('Cevap panoya kopyalandı'); return false; } },
+    { label: 'Kapat', primary: true },
+  ], () => {
+    const ov = $('#ansView').closest('.overlay');
+    ov.querySelector('.dlg').classList.add('wide');
+    const host = $('#ansView');
+    const show = (i) => {
+      cur = i;
+      $$('.anstabs button', ov).forEach((b) => b.classList.toggle('on', +b.dataset.i === i));
+      if (E.ace) {
+        if (!viewer) {
+          viewer = E.ace.edit(host);
+          viewer.setTheme(aceTheme());
+          viewer.setOptions({ fontSize: fontSize(), showPrintMargin: false, readOnly: true, highlightActiveLine: false });
+        }
+        viewer.setSession(E.ace.createEditSession(files[i].content, modeFor(files[i].name)));
+        viewer.setReadOnly(true);
+      } else {
+        host.innerHTML = `<pre>${esc(files[i].content)}</pre>`;
+      }
+    };
+    $$('.anstabs button', ov).forEach((b) => { b.onclick = () => show(+b.dataset.i); });
+    show(0);
+  });
+  return close;
+}
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).catch(() => {}); return; }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+  ta.remove();
+}
 function busy(text) {
   const ov = document.createElement('div');
   ov.className = 'overlay';
@@ -862,6 +910,7 @@ function help() {
       <tr><td>${ic('check-square-o', false)}</td><td>Evaluate: gizli testler, sayı = kaç kez değerlendirdiğin <kbd>Shift</kbd>+<kbd>F11</kbd> / <kbd>Alt</kbd>+<kbd>E</kbd></td></tr>
       <tr><td>${ic('commenting', false)}</td><td>Sağdaki paneli (not, Compilation, Yorumlar) aç / kapa</td></tr>
       <tr><td>${ic('terminal', false)}</td><td>Console</td></tr>
+      <tr><td>${ic('lightbulb-o', false)}</td><td>Cevap: kodun çözülmüş halini ayrı pencerede gösterir (sadece cevabı olan ödevlerde)</td></tr>
       <tr><td>${ic('expand', false)}</td><td>Fullscreen <kbd>Alt</kbd>+<kbd>F</kbd></td></tr>
     </table>
     <p style="margin-bottom:0">${ic('shield', false)} gerekli dosya, ${ic('lock', false)} salt okunur dosya. Kodun <code>work</code> klasörüne kaydedilir.

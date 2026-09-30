@@ -287,6 +287,10 @@ public class VplServer {
                 sendJson(ex, 200, a.details());
                 return;
             }
+            if (action.equals("answer") && method.equals("GET")) {
+                sendJson(ex, 200, a.fileList(a.filesIn("answer"), true, false));
+                return;
+            }
             if (method.equals("POST")) {
                 Map<String, Object> body = readJsonBody(ex);
                 switch (action) {
@@ -555,6 +559,7 @@ public class VplServer {
             m.put("description", Files.isRegularFile(desc) ? read(desc) : "<p>(No description)</p>");
             m.put("requested", fileList(filesIn("starter"), false, true));
             m.put("provided", fileList(filesIn("provided"), true, false));
+            m.put("hasAnswer", !filesIn("answer").isEmpty());
             List<String> req = requiredNames();
             List<Object> files = new ArrayList<>();
             for (Path p : studentFiles()) {
@@ -1641,7 +1646,10 @@ public class VplServer {
                     }
                 }
 
-                // ---- evaluate the reference solution
+                // ---- evaluate the reference solution (answer/ is the solution shown by the lightbulb button)
+                if (solution == null && !a.filesIn("answer").isEmpty()) {
+                    solution = dir.resolve("answer");
+                }
                 if (solution == null) {
                     warnings.add("no --solution given: the tests were not proven to be passable (a reference solution must score 100)");
                 } else if (!Files.isDirectory(solution)) {

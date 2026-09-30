@@ -30,6 +30,9 @@ assignments/lab03-linkedlist/
   tests/optional/*.java    extra classes compiled against the student's code one by one
                            (e.g. an unseen subclass); if one does not compile, T.hasClass is false
   tests/*                  other test resources, copied next to the code
+  answer/                  (optional) the solved files; the lightbulb button in the editor shows them
+                           read-only, and `check` uses them as the reference solution when no
+                           --solution is given (they must score 100)
 ```
 
 A leading `_` in the folder name hides the assignment. Student code lives in `work/<id>/`.

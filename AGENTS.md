@@ -211,7 +211,9 @@ The course grades with JUnit: one **check** = one test method that may contain m
    (off-by-one, missing null check, wrong exception) and run the check again; the grade must drop.
    Restore it afterwards.
 5. Delete `.scratch/<id>/` when done. Never put a solution inside `assignments/`, never show the
-   solution in chat unless the student asks for it after trying.
+   solution in chat unless the student asks for it after trying. (Exception: an `answer/` folder,
+   which the editor's lightbulb button shows, exists only where the student asked for one, e.g. the
+   `2025-26-*` labs. Keep those, and do not add one to new assignments unless asked.)
 
 If `java` is not on the PATH, use the JDK the student uses (for example
 `~/Library/Java/JavaVirtualMachines/*/Contents/Home/bin/java` on macOS, or `/usr/libexec/java_home`).

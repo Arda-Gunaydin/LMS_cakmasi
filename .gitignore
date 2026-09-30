@@ -11,6 +11,9 @@ assignments/lab02-arrays/
 assignments/lab04-bst/
 assignments/lab05-queues/
 
+# Last year's (2025-26) labs shared by a classmate: keep them local too
+assignments/2025-26-*/
+
 # Build and OS files
 *.class
 .DS_Store
