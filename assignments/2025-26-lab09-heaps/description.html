@@ -1,0 +1,136 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 9: Heaps (Array vs Node) and Heap Sort</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 9 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. Its TODO comments are kept in the starter. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>binary min-heap</strong> is a complete binary tree in which every parent is <code>&le;</code> its children, so the minimum is always at the root. You implement the interface <code>Heap&lt;E extends Comparable&lt;E&gt;&gt;</code> twice, then use the heap idea to sort an array in place.</p>
+<ul>
+  <li><code>ArrayHeap</code>: the tree is stored in an array. The children of index <code>i</code> are <code>2i + 1</code> and <code>2i + 2</code>, and the parent is <code>(i - 1) / 2</code>.</li>
+  <li><code>LinkedHeap</code>: the same tree built from nodes with <code>left</code>, <code>right</code> and <code>parent</code> references. It needs a breadth-first search to find the next free or the last position, which shows why heaps are almost always implemented with arrays.</li>
+  <li><code>Lab09.heapSort</code>: an in-place heap sort that uses a <strong>max</strong>-heap.</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab09.java</code> file. Only <code>Lab09</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Keep the given interface, <code>Node</code> class, fields and constructors, and keep the fields <code>private</code>. You may use the imported <code>Queue</code>/<code>LinkedList</code> for the breadth-first searches of <code>LinkedHeap</code> and <code>java.util.Arrays.copyOf</code>, but no other <code>java.util</code> class (in particular not <code>java.util.PriorityQueue</code> and not <code>Arrays.sort</code>).</li>
+  <li>Compare elements <strong>only</strong> with <code>compareTo</code>. <code>insert(null)</code> is ignored. Do not throw exceptions and do not print.</li>
+  <li>The exact positions of the elements are checked, so follow the algorithms below exactly.</li>
+</ul>
+
+<h2>The Heap&lt;E&gt; Interface</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>size()</code>, <code>isEmpty()</code></td><td><code>int</code>, <code>boolean</code></td><td>Given in the starter.</td></tr>
+<tr><td><code>insert(E element)</code></td><td><code>void</code></td><td>Adds the element in the next free position of the complete tree, then <strong>heap-up</strong>.</td></tr>
+<tr><td><code>min()</code></td><td><code>E</code></td><td>The root, without removing it. <code>null</code> when empty.</td></tr>
+<tr><td><code>removeMin()</code></td><td><code>E</code></td><td>Removes and returns the root: the last element replaces the root, the last position is deleted, then <strong>heap-down</strong> from the root. <code>null</code> when empty.</td></tr>
+</tbody></table></div>
+
+<h3>Heap-up and heap-down rules (both classes)</h3>
+<ul>
+  <li><strong>Heap-up:</strong> while the element has a parent and the parent is strictly greater (<code>parent.compareTo(child) &gt; 0</code>), swap them and continue from the parent.</li>
+  <li><strong>Heap-down:</strong> while the element has a left child: pick the smaller child (if both children are equal, pick the <strong>left</strong> one); if the element is <code>&le;</code> that child, stop; otherwise swap and continue from the child.</li>
+</ul>
+
+<h2>Part 1: ArrayHeap&lt;E&gt;</h2>
+<ul>
+  <li>Elements are in <code>data[0]</code> to <code>data[size - 1]</code>; every other slot is <code>null</code> (<code>removeMin</code> must clear the old last slot).</li>
+  <li><code>insert</code>: 1) put the element at <code>data[size]</code>, 2) <code>heapUp(size)</code>, 3) <code>size++</code>. If the array is full, first replace it with a copy of <strong>twice</strong> the length, so a heap can hold any number of elements.</li>
+  <li><code>swap(i, j)</code> swaps two array slots.</li>
+</ul>
+<h3>merge</h3>
+<div class="vd-sig">public static &lt;E extends Comparable&lt;E&gt;&gt; ArrayHeap&lt;E&gt; merge(ArrayHeap&lt;E&gt; h1, ArrayHeap&lt;E&gt; h2)</div>
+<p>Returns a <strong>new</strong> heap with all elements of both heaps, built in <code>O(n)</code> with the bottom-up <em>build-heap</em> algorithm:</p>
+<ol>
+  <li>Create a new <code>ArrayHeap</code> whose array has length <code>max(64, n1 + n2)</code>.</li>
+  <li>Copy <code>h1</code>'s elements (in their array order), then <code>h2</code>'s elements right after them.</li>
+  <li>Call <code>heapDown(i)</code> for <code>i = size / 2 - 1</code> down to <code>0</code>.</li>
+</ol>
+<p><code>h1</code> and <code>h2</code> must not change. A <code>null</code> argument counts as an empty heap.</p>
+
+<h2>Part 2: LinkedHeap&lt;E&gt;</h2>
+<ul>
+  <li><code>insert</code>: on an empty heap the new node is the <code>root</code>. Otherwise a breadth-first search (queue) from the root finds the first node with a missing <code>left</code> (checked first) or <code>right</code> child. Attach the new node there, <strong>set its <code>parent</code></strong>, then heap-up by swapping <strong>values</strong> (not nodes) with the parent.</li>
+  <li><code>removeMin</code>: 1) find the last node with a breadth-first search, 2) save the root value, 3) copy the last node's value into the root, 4) detach the last node from its parent, 5) heap-down from the root by swapping values, 6) return the saved value. Removing the only node makes <code>root</code> <code>null</code>.</li>
+  <li>The values of a <code>LinkedHeap</code> in level order are always exactly the array of an <code>ArrayHeap</code> that got the same operations.</li>
+</ul>
+
+<h2>Part 3: heapSort</h2>
+<div class="vd-sig">public static &lt;E extends Comparable&lt;E&gt;&gt; void heapSort(E[] arr)</div>
+<p>Sorts <code>arr</code> in <strong>ascending</strong> order, in place, without a second array:</p>
+<ol>
+  <li>Build a <strong>max</strong>-heap in the array: call <code>heapifyUp(arr, arr.length, i)</code> for <code>i = arr.length / 2 - 1</code> down to <code>0</code>.</li>
+  <li>For <code>end = arr.length - 1</code> down to <code>1</code>: swap <code>arr[0]</code> (the maximum) with <code>arr[end]</code>, then <code>heapifyUp(arr, end, 0)</code>.</li>
+</ol>
+<p>The private helper <code>heapifyUp(arr, heapSize, i)</code> (last year's name; it actually moves the element <strong>down</strong>) makes the subtree at <code>i</code> a max-heap: find the largest of <code>arr[i]</code> and its children inside <code>heapSize</code>; if it is a child, swap and continue from that child. A <code>null</code> array or an array with fewer than 2 elements is left as it is.</p>
+
+<h2>Example</h2>
+<pre><code>ArrayHeap: insert 5, 3, 8, 1
+  [5]  -&gt;  [3, 5]  -&gt;  [3, 5, 8]  -&gt;  [1, 3, 8, 5]
+insert 4        -&gt;  [1, 3, 8, 5, 4]
+removeMin() = 1 -&gt;  4 moves to the root and goes down: [3, 4, 8, 5]
+
+merge([1, 5, 9], [2, 4]):
+  copy       [1, 5, 9, 2, 4]
+  heapDown(1): 5 &gt; smaller child 2 -&gt; [1, 2, 9, 5, 4]
+  heapDown(0): 1 &le; 2, stop     -&gt; result [1, 2, 9, 5, 4]
+
+LinkedHeap with the same inserts 5, 3, 8, 1:
+
+        1
+       / \
+      3   8
+     /
+    5
+
+heapSort([9, 4, 7, 1, 8])  -&gt;  [1, 4, 7, 8, 9]</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li><code>min</code> and <code>removeMin</code> on an empty heap and on a one-element heap</li>
+  <li>Duplicates, and equal children during heap-down (take the left one)</li>
+  <li>More than 64 inserts into an <code>ArrayHeap</code></li>
+  <li><code>merge</code> with an empty or <code>null</code> heap; the inputs stay unchanged</li>
+  <li><code>LinkedHeap</code>: correct <code>parent</code> references, and removing the right or the left child as the last node</li>
+  <li><code>heapSort</code> on <code>null</code>, an empty array, one element, duplicates, already sorted and reverse-sorted arrays</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>ArrayHeap</code>: <code>swap</code>, <code>heapUp</code>, <code>insert</code>, <code>min</code>, <code>heapDown</code>, <code>removeMin</code>, then <code>merge</code></li>
+  <li><code>LinkedHeap</code></li>
+  <li><code>heapifyUp</code> and <code>heapSort</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab09.java</code>, compiles, and declares only <code>Lab09</code> as public.</li>
+  <li>No &ldquo;Not implemented&rdquo; stub is left, and no method prints anything.</li>
+  <li>No <code>java.util.PriorityQueue</code> and no library sort is used.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

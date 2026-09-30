@@ -1,0 +1,143 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 3: Singly, Circular and Doubly Linked Lists</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 3 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. The interface <code>MyList&lt;E&gt;</code>, the node classes and the getters are last year's. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>The same list interface, <code>MyList&lt;E&gt;</code>, can be implemented with different node structures. In this lab you implement it three times:</p>
+<ul>
+  <li><code>SinglyLinkedList&lt;E&gt;</code>: nodes with one <code>next</code> reference, a <code>head</code> and a <code>tail</code></li>
+  <li><code>CircularLinkedList&lt;E&gt;</code>: a singly linked list whose last node points back to the first one (<code>tail.next == head</code>)</li>
+  <li><code>DoublyLinkedList&lt;E&gt;</code>: nodes with <code>prev</code> and <code>next</code> references, a <code>head</code> and a <code>tail</code></li>
+</ul>
+<p>This lab practices keeping every link, <code>head</code>, <code>tail</code> and <code>size</code> correct in the special cases: the empty list, a one-element list, and the first and last positions.</p>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab03.java</code> file. Only <code>Lab03</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Do not use any <code>java.util</code> class and do not use arrays inside the lists. Every list is built from <code>Node</code> or <code>DNode</code> objects.</li>
+  <li>Keep the given interface, node classes, fields and the <code>getHead()</code> / <code>getTail()</code> methods unchanged. The tests walk your nodes through them. Keep the list fields <code>private</code>.</li>
+  <li><strong>Do not throw exceptions</strong> and do not print. Invalid indexes and empty lists are handled with the return values below.</li>
+  <li>Elements are never <code>null</code>; you do not have to handle <code>null</code> elements. Compare elements with <code>equals</code>.</li>
+</ul>
+
+<h2>The MyList&lt;E&gt; Interface</h2>
+<p>All three classes implement every method below with the same behavior. Indexes start at <code>0</code>.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>size()</code></td><td><code>int</code></td><td>Number of elements.</td></tr>
+<tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when <code>size() == 0</code>.</td></tr>
+<tr><td><code>clear()</code></td><td><code>void</code></td><td>Removes all elements. The list is then empty and fully usable again.</td></tr>
+<tr><td><code>addFirst(E e)</code></td><td><code>void</code></td><td>Inserts <code>e</code> at the front.</td></tr>
+<tr><td><code>addLast(E e)</code></td><td><code>void</code></td><td>Inserts <code>e</code> at the end, in <code>O(1)</code> using <code>tail</code>.</td></tr>
+<tr><td><code>insertAt(int index, E e)</code></td><td><code>void</code></td><td>Inserts <code>e</code> so that it ends up at position <code>index</code>. Valid indexes are <code>0</code> to <code>size()</code> inclusive. For any other index <strong>nothing happens</strong>.</td></tr>
+<tr><td><code>removeFirst()</code></td><td><code>E</code></td><td>Removes and returns the first element, or returns <code>null</code> if the list is empty.</td></tr>
+<tr><td><code>removeLast()</code></td><td><code>E</code></td><td>Removes and returns the last element, or returns <code>null</code> if the list is empty.</td></tr>
+<tr><td><code>removeAt(int index)</code></td><td><code>E</code></td><td>Removes and returns the element at <code>index</code>. Returns <code>null</code> and changes nothing if the index is not between <code>0</code> and <code>size() - 1</code>.</td></tr>
+<tr><td><code>get(int index)</code></td><td><code>E</code></td><td>The element at <code>index</code>, or <code>null</code> if the index is invalid.</td></tr>
+<tr><td><code>set(int index, E e)</code></td><td><code>E</code></td><td>Replaces the element at <code>index</code> and returns the <strong>old</strong> element. Returns <code>null</code> and changes nothing if the index is invalid.</td></tr>
+<tr><td><code>indexOf(E o)</code></td><td><code>int</code></td><td>Index of the <strong>first</strong> element equal to <code>o</code>, or <code>-1</code>.</td></tr>
+<tr><td><code>remove(E o)</code></td><td><code>boolean</code></td><td>Removes the <strong>first</strong> element equal to <code>o</code>. Returns <code>true</code> if one was removed, <code>false</code> otherwise.</td></tr>
+</tbody></table></div>
+
+<h2>Part 1: SinglyLinkedList&lt;E&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>head</code></td><td><code>Node&lt;E&gt;</code></td><td>First node, or <code>null</code> when empty.</td></tr>
+<tr><td><code>tail</code></td><td><code>Node&lt;E&gt;</code></td><td>Last node, or <code>null</code> when empty. <code>tail.next</code> is always <code>null</code>.</td></tr>
+<tr><td><code>size</code></td><td><code>int</code></td><td>Number of nodes.</td></tr>
+</tbody></table></div>
+<p>Following <code>next</code> from <code>head</code> must visit exactly <code>size</code> nodes and end at <code>tail</code>. <code>removeLast()</code> has to walk to the node before <code>tail</code> and make it the new <code>tail</code>.</p>
+
+<h2>Part 2: CircularLinkedList&lt;E&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>head</code></td><td><code>Node&lt;E&gt;</code></td><td>First node, or <code>null</code> when empty.</td></tr>
+<tr><td><code>tail</code></td><td><code>Node&lt;E&gt;</code></td><td>Last node, or <code>null</code> when empty. <code>tail.next</code> is always <code>head</code>.</td></tr>
+<tr><td><code>size</code></td><td><code>int</code></td><td>Number of nodes.</td></tr>
+</tbody></table></div>
+<ul>
+  <li>A one-element list is a single node whose <code>next</code> is itself.</li>
+  <li>Starting at <code>head</code> and following <code>next</code> exactly <code>size</code> times must come back to <code>head</code>. No <code>next</code> is ever <code>null</code> while the list is not empty.</li>
+  <li>After every change that touches the first or the last node, set <code>tail.next = head</code> again.</li>
+</ul>
+
+<h2>Part 3: DoublyLinkedList&lt;E&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>head</code></td><td><code>DNode&lt;E&gt;</code></td><td>First node, or <code>null</code>. <code>head.prev</code> is always <code>null</code>.</td></tr>
+<tr><td><code>tail</code></td><td><code>DNode&lt;E&gt;</code></td><td>Last node, or <code>null</code>. <code>tail.next</code> is always <code>null</code>.</td></tr>
+<tr><td><code>size</code></td><td><code>int</code></td><td>Number of nodes.</td></tr>
+</tbody></table></div>
+<p>For every node <code>n</code> except the last, <code>n.next.prev == n</code>. Walking backwards with <code>prev</code> from <code>tail</code> must give the elements in reverse order. <code>removeLast()</code> must be <code>O(1)</code> using <code>tail.prev</code>.</p>
+
+<h2>Example</h2>
+<pre><code>MyList&lt;Integer&gt; list = new DoublyLinkedList&lt;&gt;();   // same results for all three classes
+list.addLast(20);        // [20]
+list.addFirst(10);       // [10, 20]
+list.insertAt(2, 40);    // [10, 20, 40]
+list.insertAt(2, 30);    // [10, 20, 30, 40]
+list.insertAt(9, 99);    // invalid index: nothing happens
+list.get(3);             // 40
+list.get(4);             // null
+list.set(0, 5);          // returns 10 -&gt; [5, 20, 30, 40]
+list.indexOf(30);        // 2
+list.removeAt(1);        // returns 20 -&gt; [5, 30, 40]
+list.remove(40);         // true -&gt; [5, 30]
+list.remove(7);          // false
+list.removeLast();       // 30 -&gt; [5]
+list.removeFirst();      // 5  -&gt; []
+list.removeFirst();      // null</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>Every add and remove method on an empty list and on a one-element list</li>
+  <li>Removing the only element (the list must be empty, and <code>head</code>/<code>tail</code> <code>null</code>), then adding again</li>
+  <li><code>insertAt</code> at <code>0</code> and at <code>size()</code>, and the invalid indexes <code>-1</code> and <code>size() + 1</code></li>
+  <li><code>get</code>, <code>set</code> and <code>removeAt</code> with <code>-1</code> and <code>size()</code></li>
+  <li><code>remove(o)</code> of the first element, the last element (<code>tail</code> must be updated) and a missing element</li>
+  <li>Duplicates (only the first match counts)</li>
+  <li><code>clear()</code> followed by new adds</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>SinglyLinkedList</code>: <code>size</code>, <code>isEmpty</code>, <code>addFirst</code>, <code>addLast</code>, <code>get</code>, then the rest</li>
+  <li><code>DoublyLinkedList</code> (it is the same list plus <code>prev</code> links)</li>
+  <li><code>CircularLinkedList</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab03.java</code>, compiles, and declares only <code>Lab03</code> as public.</li>
+  <li>No <code>java.util</code> class and no array is used.</li>
+  <li>The given getters, node classes and fields are unchanged.</li>
+  <li>No method throws an exception or prints anything.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,118 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 4: Algorithm Analysis (Big-O)</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 4 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. The seven methods and five questions are last year's, unchanged. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>In this lab you do not write algorithms: you <strong>analyze</strong> them. For each of seven given methods you decide its running time as a Big-O bound in terms of <code>n</code>, the length of the array <code>a</code>. Then you answer five questions that compare an <strong>array</strong> with a <strong>singly linked list</strong>.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Counting how many times the innermost statement of nested loops runs</li>
+  <li>Recognizing logarithmic loops (a variable that is halved or doubled each step)</li>
+  <li>Recognizing exponential recursion (two recursive calls on a problem only one smaller)</li>
+  <li>Comparing the cost of basic operations on arrays and linked lists</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>Unlike most labs, here the tests <strong>do</strong> read what your methods print: each method prints your answer line, and the tests compare it with the correct bound.</p>
+<p>Because of that:</p>
+<ul>
+<li>Change only the text between the quotes of the <code>answer</code>, <code>arrayAnswer</code> and <code>sllAnswer</code> variables.</li>
+<li>Do not change, remove or add any <code>printf</code> line, and do not change the code that follows the answer lines. The tests also check that every method still returns its original result.</li>
+<li>Write only what goes inside the parentheses: <code>"logn"</code> for <code>O(logn)</code>, not <code>"O(logn)"</code>.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab04.java</code> file. Only <code>Lab04</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Give the <strong>tightest</strong> bound for the worst case, written in one of the allowed forms exactly (no spaces needed; capital letters and spaces are ignored).</li>
+</ul>
+
+<h2>Part 1: Seven Methods</h2>
+<p>Every method has the signature <code>public static long name(int[] a)</code>. Allowed answers:</p>
+<div class="vd-table"><table>
+<thead><tr><th>Write</th><th>Means</th></tr></thead>
+<tbody>
+<tr><td><code>"1"</code></td><td><code>O(1)</code> constant</td></tr>
+<tr><td><code>"logn"</code></td><td><code>O(log n)</code> logarithmic</td></tr>
+<tr><td><code>"n"</code></td><td><code>O(n)</code> linear</td></tr>
+<tr><td><code>"nlogn"</code></td><td><code>O(n log n)</code></td></tr>
+<tr><td><code>"n^2"</code></td><td><code>O(n<sup>2</sup>)</code> quadratic</td></tr>
+<tr><td><code>"n^3"</code></td><td><code>O(n<sup>3</sup>)</code> cubic</td></tr>
+<tr><td><code>"2^n"</code></td><td><code>O(2<sup>n</sup>)</code> exponential</td></tr>
+</tbody></table></div>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>What to look at</th></tr></thead>
+<tbody>
+<tr><td><code>cubeWalk</code></td><td>Three nested loops.</td></tr>
+<tr><td><code>halvingProbe</code></td><td>A loop whose variable <code>m</code> is divided by 2 each step.</td></tr>
+<tr><td><code>subsetXor</code></td><td>A recursive helper that calls itself twice with <code>idx + 1</code>.</td></tr>
+<tr><td><code>triangularPairs</code></td><td>Two nested loops; the inner one runs <code>i + 1</code> times.</td></tr>
+<tr><td><code>touchFew</code></td><td>At most three array accesses, whatever <code>n</code> is.</td></tr>
+<tr><td><code>phasedSweeps</code></td><td>An outer loop whose <code>stride</code> doubles, around a full pass over the array.</td></tr>
+<tr><td><code>singleScan</code></td><td>One pass over the array.</td></tr>
+</tbody></table></div>
+
+<h3>Example</h3>
+<pre><code>public static long example(int[] a) {
+    String answer = "n";                       // your answer goes here
+    System.out.printf("Your answer: O(%s)\n", answer);
+    long s = 0;
+    for (int i = 0; i &lt; a.length; i++) s += a[i];
+    return s;
+}
+// prints: Your answer: O(n)</code></pre>
+
+<h2>Part 2: Array vs. Singly Linked List</h2>
+<p>Each method <code>question1()</code> to <code>question5()</code> has two answers: <code>arrayAnswer</code> and <code>sllAnswer</code>. Allowed answers are <code>"1"</code>, <code>"n"</code> and <code>"n+m"</code>. Assume:</p>
+<ul>
+  <li>The <strong>array</strong> has a <code>size</code> counter and enough spare capacity, so it never has to grow. Its elements must stay in positions <code>0</code> to <code>size - 1</code> with no gaps.</li>
+  <li>The <strong>singly linked list</strong> has only a <code>head</code> reference, except in Q5, where it also has a <code>tail</code> reference.</li>
+  <li>In Q5 the two structures have <code>n</code> and <code>m</code> elements, and the result must be one structure that holds both.</li>
+</ul>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Question</th></tr></thead>
+<tbody>
+<tr><td><code>question1()</code></td><td>Accessing an element by index.</td></tr>
+<tr><td><code>question2()</code></td><td>Searching for an element in an unsorted structure.</td></tr>
+<tr><td><code>question3()</code></td><td>Inserting an element at the end.</td></tr>
+<tr><td><code>question4()</code></td><td>Deleting the first element.</td></tr>
+<tr><td><code>question5()</code></td><td>Concatenating two structures (the SLL has a tail pointer).</td></tr>
+</tbody></table></div>
+<p>A question earns its check only when <strong>both</strong> answers are correct.</p>
+
+<h2>Required Edge Cases</h2>
+<p>Think about:</p>
+<ul>
+  <li>Loops whose bound depends on the outer loop variable (a triangle still grows like a square)</li>
+  <li>Constant work that does not depend on <code>n</code> at all</li>
+  <li>A loop that runs <code>log n</code> times around a loop that runs <code>n</code> times</li>
+  <li>Why removing the first element is expensive in an array but cheap in a linked list, and the reverse for access by index</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>singleScan</code>, <code>touchFew</code>, <code>cubeWalk</code>, <code>triangularPairs</code></li>
+  <li><code>halvingProbe</code>, <code>phasedSweeps</code>, <code>subsetXor</code></li>
+  <li><code>question1()</code> to <code>question5()</code>; use the Run button to see all your answer lines</li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab04.java</code> and compiles.</li>
+  <li>All 17 answer strings are filled in, in the allowed forms.</li>
+  <li>No <code>printf</code> line and no computation was changed.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

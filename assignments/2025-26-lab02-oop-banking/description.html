@@ -1,0 +1,186 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 2: OOP Review &ndash; Banking System</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 2 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The original handout was not available, so this text describes a solution from last year that a classmate shared. You can see that solution with the lightbulb button in the editor. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>You model a small bank: customers own accounts, accounts keep a sorted history of transactions, and customers pay with a payment method. The lab reviews the object-oriented tools you need for the rest of the course.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>An <strong>interface</strong> (<code>PaymentMethod</code>) with two implementations</li>
+  <li><strong>Abstract classes</strong> (<code>Account</code>, <code>Customer</code>) with abstract methods that the subclasses override</li>
+  <li><strong>Encapsulation</strong>: private helper methods and private/protected fields</li>
+  <li><code>Comparable</code> and a sorted collection (<code>TreeSet</code>)</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>In this lab some methods <strong>print</strong> messages, and the tests compare that printed text exactly. The other methods are graded by their return values and by the object's state.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Printed messages must match the formats below character by character. Write amounts with <code>%.2f</code> in <code>System.out.printf</code> (or <code>String.format</code>), exactly as shown.</li>
+<li>Methods that are not said to print must not print anything.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab02.java</code> file. Only <code>Lab02</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Keep the given fields. No field may be <code>public</code>.</li>
+  <li>You may use <code>ArrayList</code>, <code>List</code>, <code>HashMap</code>, <code>TreeSet</code> and <code>LocalDateTime</code>.</li>
+  <li>Money amounts are <code>double</code>.</li>
+  <li>In the formats below, <code>&lt;x&gt;</code> is a value and <code>%.2f</code> is an amount with two decimals. Every message is one line.</li>
+</ul>
+
+<h2>Part 1: Payment Methods</h2>
+<h3>PaymentMethod (interface)</h3>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>pay(double amount)</code></td><td><code>void</code></td><td>Tries to pay and prints the result.</td></tr>
+</tbody></table></div>
+
+<h3>CreditCardPayment implements PaymentMethod</h3>
+<p>Constructor <code>CreditCardPayment(String cardNumber, String cardHolderName)</code> stores both values in the <code>private final</code> fields.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>verifySecurePayment()</code> (private)</td><td><code>boolean</code></td><td><code>true</code> when the holder name is not <code>null</code> and not blank.</td></tr>
+<tr><td><code>confirmTransaction(double amount)</code> (private)</td><td><code>boolean</code></td><td><code>true</code> when <code>0 &le; amount &le; 10000.0</code>.</td></tr>
+<tr><td><code>maskCardNumber()</code> (private)</td><td><code>String</code></td><td>Removes all whitespace from the card number (<code>null</code> counts as <code>""</code>). If 4 or fewer characters remain, returns them unchanged; otherwise returns <code>"****-****-****-"</code> followed by the last 4.</td></tr>
+<tr><td><code>pay(double amount)</code></td><td><code>void</code></td><td>If <code>verifySecurePayment()</code> fails, prints <code>Verification failed.</code><br>Else if <code>confirmTransaction(amount)</code> fails, prints <code>Transaction not confirmed.</code><br>Otherwise prints <code>Paid %.2f with credit card &lt;masked number&gt; (holder: &lt;holder name&gt;)</code></td></tr>
+</tbody></table></div>
+
+<h3>PayPalPayment implements PaymentMethod</h3>
+<p>Constructor <code>PayPalPayment(String email)</code>.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>connectServer()</code> (private)</td><td><code>boolean</code></td><td><code>true</code> when the email is not <code>null</code> and not blank.</td></tr>
+<tr><td><code>retreiveInfo()</code> (private)</td><td><code>String</code></td><td>Returns <code>"PayPalAccount(" + email + ")"</code>.</td></tr>
+<tr><td><code>pay(double amount)</code></td><td><code>void</code></td><td>If <code>connectServer()</code> fails, prints <code>Cannot connect.</code><br>Else if <code>retreiveInfo()</code> returns <code>null</code>, prints <code>No account info.</code><br>Otherwise prints <code>Paid %.2f via PayPal account &lt;email&gt;</code></td></tr>
+</tbody></table></div>
+
+<h2>Part 2: Transaction implements Comparable&lt;Transaction&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Member</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>Transaction(String transactionType, double amount)</code></td><td>constructor</td><td>Stores the type and the amount; <code>transactionDate</code> is <code>LocalDateTime.now()</code>.</td></tr>
+<tr><td><code>getTransactionDate()</code></td><td><code>LocalDateTime</code></td><td>Returns the date.</td></tr>
+<tr><td><code>compareTo(Transaction other)</code></td><td><code>int</code></td><td>Compares the two dates, so an older transaction is smaller.</td></tr>
+<tr><td><code>toString()</code></td><td><code>String</code></td><td><code>&lt;date&gt; | &lt;type&gt; | %.2f</code>, for example <code>2026-09-30T19:24:21.512 | DEPOSIT | 20.00</code>.</td></tr>
+</tbody></table></div>
+
+<h2>Part 3: Accounts</h2>
+<h3>Account (abstract)</h3>
+<div class="vd-table"><table>
+<thead><tr><th>Member</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>Account(String accountNumber, double initialBalance)</code></td><td>constructor</td><td>Stores both values. The initial balance is not a transaction.</td></tr>
+<tr><td><code>getAccountNumber()</code>, <code>getBalance()</code></td><td>getters</td><td>Return the stored values.</td></tr>
+<tr><td><code>deposit(double amount)</code></td><td><code>void</code></td><td><code>amount &le; 0</code> throws <code>IllegalArgumentException</code>. Otherwise adds it to the balance and adds a <code>"DEPOSIT"</code> transaction. Prints nothing.</td></tr>
+<tr><td><code>withdraw(double amount)</code></td><td><code>abstract boolean</code></td><td>Implemented by the subclasses.</td></tr>
+<tr><td><code>record(String type, double amount)</code></td><td><code>protected void</code></td><td>Adds a new <code>Transaction</code> to the <code>transactions</code> <code>TreeSet</code>.</td></tr>
+<tr><td><code>printTransactionHistory()</code></td><td><code>void</code></td><td>Prints <code>Transactions for &lt;accountNumber&gt;:</code>, then one line per transaction (its <code>toString()</code>), oldest first.</td></tr>
+<tr><td><code>toString()</code></td><td><code>String</code></td><td><code>&lt;accountNumber&gt; | Balance: %.2f</code>, for example <code>CHK-1 | Balance: -30.00</code>.</td></tr>
+</tbody></table></div>
+
+<h3>CheckingAccount extends Account</h3>
+<p>Constructor <code>CheckingAccount(String accountNumber, double initialBalance, double overdraftLimit)</code>.</p>
+<ul>
+  <li><code>withdraw(amount)</code>: <code>amount &le; 0</code> throws <code>IllegalArgumentException</code>.</li>
+  <li>If <code>amount &le; balance + overdraftLimit</code>: the balance goes down (it may become negative), a <code>"WITHDRAWAL"</code> transaction is recorded, it prints <code>Withdrew %.2f from &lt;accountNumber&gt;. New balance: %.2f</code> and returns <code>true</code>.</li>
+  <li>Otherwise nothing changes, it prints <code>Withdrawal %.2f denied for &lt;accountNumber&gt;. Exceeds overdraft.</code> and returns <code>false</code>.</li>
+</ul>
+
+<h3>SavingsAccount extends Account</h3>
+<p>Constructor <code>SavingsAccount(String accountNumber, double initialBalance, double interestRate)</code> (<code>0.05</code> means 5%).</p>
+<ul>
+  <li><code>withdraw(amount)</code>: like <code>CheckingAccount</code>, but the limit is the balance itself (no overdraft), and the refusal message is <code>Withdrawal %.2f denied for &lt;accountNumber&gt;. Insufficient funds.</code></li>
+  <li><code>applyInterest()</code> (<code>void</code>): computes <code>interest = balance * interestRate</code>, adds it with <code>deposit(interest)</code> (so it is recorded as a <code>"DEPOSIT"</code>, and an interest of <code>0</code> throws <code>IllegalArgumentException</code>), then prints <code>Applied interest %.2f to &lt;accountNumber&gt;. New balance: %.2f</code>.</li>
+</ul>
+
+<h2>Part 4: Customers</h2>
+<h3>Customer (abstract)</h3>
+<div class="vd-table"><table>
+<thead><tr><th>Member</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>Customer(String customerId, String name)</code></td><td>constructor</td><td>Stores both values in the <code>protected final</code> fields.</td></tr>
+<tr><td><code>addAccount(Account account)</code></td><td><code>void</code></td><td>Adds the account to <code>accounts</code>.</td></tr>
+<tr><td><code>setPaymentMethod(PaymentMethod method)</code></td><td><code>void</code></td><td>Stores the payment method (initially <code>null</code>).</td></tr>
+<tr><td><code>makePayment(double amount)</code></td><td><code>void</code></td><td>Without a payment method, prints a line that starts with <code>No payment method set for</code> and names the customer. Otherwise prints <code>&lt;name&gt; (fee %.2f) making payment: </code> (no line break, the fee is <code>getTransactionFee()</code>) and then calls <code>pay(amount)</code> of the payment method, which prints the rest of the line. The fee is only shown, not added to the amount.</td></tr>
+<tr><td><code>getTransactionFee()</code></td><td><code>abstract double</code></td><td><code>RegularCustomer</code>: <code>2.5</code>. <code>PremiumCustomer</code>: <code>1.0</code>.</td></tr>
+</tbody></table></div>
+
+<h2>Part 5: Bank</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>addCustomer(Customer customer)</code></td><td><code>void</code></td><td>Adds the customer to <code>customers</code>.</td></tr>
+<tr><td><code>findCustomer(String customerId)</code></td><td><code>Customer</code></td><td>The customer with that id, or <code>null</code>.</td></tr>
+<tr><td><code>openAccountForCustomer(String customerId, Account account)</code></td><td><code>boolean</code></td><td>Returns <code>false</code> if the customer does not exist. Otherwise adds the account to the customer and to <code>accountsMap</code> (key: the account number) and returns <code>true</code>.</td></tr>
+<tr><td><code>findAccount(String accountNumber)</code></td><td><code>Account</code></td><td>The account with that number, or <code>null</code>.</td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<pre><code>Bank bank = new Bank();
+Customer ali = new RegularCustomer("C1", "Ali");
+bank.addCustomer(ali);
+bank.openAccountForCustomer("C1", new CheckingAccount("CHK-1", 100.0, 50.0));   // true
+bank.openAccountForCustomer("C9", new SavingsAccount("SAV-9", 0.0, 0.01));      // false (no C9)
+
+Account chk = bank.findAccount("CHK-1");
+chk.withdraw(130.0);   // true   prints: Withdrew 130.00 from CHK-1. New balance: -30.00
+chk.withdraw(30.0);    // false  prints: Withdrawal 30.00 denied for CHK-1. Exceeds overdraft.
+chk.toString();        // "CHK-1 | Balance: -30.00"
+
+SavingsAccount sav = new SavingsAccount("SAV-1", 800.0, 0.05);
+sav.applyInterest();   // prints: Applied interest 40.00 to SAV-1. New balance: 840.00
+
+ali.setPaymentMethod(new CreditCardPayment("1234 5678 9012 3456", "Ali Veli"));
+ali.makePayment(50.0);
+// prints: Ali (fee 2.50) making payment: Paid 50.00 with credit card ****-****-****-3456 (holder: Ali Veli)
+ali.setPaymentMethod(new PayPalPayment(""));
+ali.makePayment(10.0);
+// prints: Ali (fee 2.50) making payment: Cannot connect.</code></pre>
+<p>The tests build the expected text with the same <code>%.2f</code> formatting, so the decimal separator is whatever Java uses on the computer that runs them.</p>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>Card payments of <code>0</code>, exactly <code>10000.0</code>, just above it, and negative amounts; a <code>null</code> or blank holder name</li>
+  <li>Card numbers with spaces, and with 4 or fewer digits</li>
+  <li>A <code>null</code> or blank PayPal email</li>
+  <li>Withdrawing exactly the balance (savings) and exactly balance + overdraft (checking); <code>0</code> and negative amounts</li>
+  <li><code>deposit</code> of <code>0</code> or a negative amount</li>
+  <li><code>makePayment</code> without a payment method</li>
+  <li><code>findCustomer</code> / <code>findAccount</code> for ids that do not exist</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>CreditCardPayment</code>, <code>PayPalPayment</code></li>
+  <li><code>Transaction</code></li>
+  <li><code>Account</code>, <code>CheckingAccount</code>, <code>SavingsAccount</code></li>
+  <li><code>Customer</code> and its two subclasses</li>
+  <li><code>Bank</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab02.java</code>, compiles, and declares only <code>Lab02</code> as public.</li>
+  <li><code>Account</code> and <code>Customer</code> are abstract; the two payment classes implement <code>PaymentMethod</code>.</li>
+  <li>Every printed message matches its format exactly, and the other methods print nothing.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

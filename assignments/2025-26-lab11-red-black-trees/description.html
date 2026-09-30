@@ -1,0 +1,109 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 11: Red-Black Trees</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 11 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. Its step-by-step TODO comments are kept in the starter. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>red-black tree</strong> is a binary search tree in which every node is red or black. After every insertion the tree is repaired with <strong>recoloring</strong> and <strong>rotations</strong> so that these properties always hold:</p>
+<ol>
+  <li>The root is black.</li>
+  <li>A red node never has a red child (no two reds in a row).</li>
+  <li>Every path from a node down to an empty (<code>null</code>) spot passes the same number of black nodes. <code>null</code> spots count as black.</li>
+</ol>
+<p>Together they guarantee that the height is at most about <code>2 log<sub>2</sub>(n + 1)</code>. In this lab you implement insertion, including the fix-up after an insert. Removal is optional and not tested.</p>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab11.java</code> file. Only <code>Lab11</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Keep the given interfaces, the <code>Node</code> class (<code>color == true</code> means <strong>RED</strong>, <code>false</code> means <strong>BLACK</strong>; new nodes start red), the fields, and the given <code>BFS</code>, <code>toString</code> and <code>contains</code> methods.</li>
+  <li>Every node's <code>parent</code> reference must always be correct; the root's parent is <code>null</code>.</li>
+  <li>Link new nodes through parent pointers as described in the starter; do not rebuild the tree.</li>
+  <li><strong>No duplicates:</strong> inserting an element that is already in the tree changes nothing. <code>insert(null)</code> changes nothing and <code>contains(null)</code> is <code>false</code>.</li>
+  <li>Do not throw exceptions. Only <code>main</code> and the given <code>toString</code> may produce text.</li>
+</ul>
+
+<h2>Methods of RBTree&lt;E&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>isEmpty()</code>, <code>size()</code></td><td><code>boolean</code>, <code>int</code></td><td>Whether the tree is empty, and the number of elements.</td></tr>
+<tr><td><code>insert(E data)</code></td><td><code>void</code></td><td>Empty tree: the new node becomes the root. Otherwise <code>insertRec(root, data)</code>. At the end, the root is always made black.</td></tr>
+<tr><td><code>insertRec(Node&lt;E&gt; node, E data)</code> (private)</td><td><code>void</code></td><td>Standard recursive BST insert: go left if smaller, right if larger. At the empty spot create the node, link it to its parent (both directions), increase <code>size</code>, then call <code>check(newNode)</code>.</td></tr>
+<tr><td><code>check(Node&lt;E&gt; newNode)</code></td><td><code>void</code></td><td>The fixer. If the node is the root, color it black and stop. If the node and its parent are not both red, stop. Otherwise look at the <strong>uncle</strong> (the parent's sibling): <strong>red uncle</strong> &rarr; <code>recolor(grandParent)</code> and then <code>check(grandParent)</code>; <strong>black (or <code>null</code>) uncle</strong> &rarr; <code>balance(newNode)</code>.</td></tr>
+<tr><td><code>recolor(Node&lt;E&gt; grandParent)</code></td><td><code>void</code></td><td>Case 1: the grandparent becomes red (unless it is the root), and both of its children (the parent and the uncle) become black.</td></tr>
+<tr><td><code>balance(Node&lt;E&gt; newNode)</code></td><td><code>Node&lt;E&gt;</code></td><td>Cases 2 and 3, with parent <code>P</code> and grandparent <code>G</code>. <strong>LL</strong>: <code>rotateRight(G)</code>. <strong>RR</strong>: <code>rotateLeft(G)</code>. <strong>LR</strong>: <code>rotateLeft(P)</code>, then <code>rotateRight(G)</code>. <strong>RL</strong>: <code>rotateRight(P)</code>, then <code>rotateLeft(G)</code>. Then the new subtree root becomes black and <code>G</code> becomes red. Returns the new subtree root.</td></tr>
+<tr><td><code>rotateLeft(Node&lt;E&gt; node)</code></td><td><code>Node&lt;E&gt;</code></td><td>The right child <code>x</code> takes <code>node</code>'s place: <code>x.left</code> becomes <code>node.right</code>, <code>node</code> becomes <code>x.left</code>. All <code>parent</code> references are updated. If <code>node</code> was the root, <code>root</code> becomes <code>x</code>; otherwise <code>x</code> replaces <code>node</code> as the left or right child of the old parent. Colors do not change. Returns <code>x</code>. If <code>node</code> or its right child is <code>null</code>, nothing happens and <code>node</code> is returned.</td></tr>
+<tr><td><code>rotateRight(Node&lt;E&gt; node)</code></td><td><code>Node&lt;E&gt;</code></td><td>The mirror image with the left child.</td></tr>
+<tr><td><code>isRed(Node&lt;E&gt; n)</code> (private)</td><td><code>boolean</code></td><td><code>true</code> only for a non-null red node; <code>null</code> counts as black.</td></tr>
+<tr><td><code>getSibling(Node&lt;E&gt; n)</code> (private)</td><td><code>Node&lt;E&gt;</code></td><td>The other child of <code>n</code>'s parent; <code>null</code> for the root.</td></tr>
+<tr><td><code>containsRec(Node&lt;E&gt; node, E data)</code> (private)</td><td><code>Node&lt;E&gt;</code></td><td>Standard BST search: the node holding <code>data</code>, or <code>null</code>.</td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<p>Trees are written as <code>value+color(left,right)</code>, with <code>B</code> = black, <code>R</code> = red and <code>-</code> = empty.</p>
+<pre><code>insert 50, 20, 10   (LL: rotateRight at 50)       -&gt;  20B(10R,50R)
+insert 10, 20, 30   (RR: rotateLeft at 10)        -&gt;  20B(10R,30R)
+insert 50, 10, 20   (LR)                           -&gt;  20B(10R,50R)
+insert 20, 10, 30, 5   (red uncle 30: recolor)     -&gt;  20B(10B(5R,-),30B)
+
+insert 1, 2, 3, 4, 5, 6, 7, 8:
+
+                4B
+             /      \
+          2R          6R
+         /  \        /  \
+       1B    3B    5B    7B
+                           \
+                            8R
+
+insert 33, 13, 53, 11, 21, 41, 61, 15, 31
+  -&gt;  33B(13R(11B,21B(15R,31R)),53B(41R,61R))</code></pre>
+<p>The given <code>toString()</code> prints the tree in level order with its <code>null</code> spots. The main method of the starter uses it.</p>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>The first insert into an empty tree (black root) and the empty tree itself</li>
+  <li>All four rotation cases (LL, RR, LR, RL), and rotations at the root (the <code>root</code> field must change)</li>
+  <li>A red uncle that makes the recoloring move up the tree, repeatedly</li>
+  <li>Duplicates and <code>null</code></li>
+  <li>Long sequences, including sorted input: the three properties and all parent references must hold after every insert</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>isEmpty</code>, <code>size</code>, <code>isRed</code>, <code>getSibling</code>, <code>containsRec</code></li>
+  <li><code>rotateLeft</code> and <code>rotateRight</code> (with parent pointers)</li>
+  <li><code>insert</code> and <code>insertRec</code> without fixing (a plain BST)</li>
+  <li><code>check</code>, <code>recolor</code>, <code>balance</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab11.java</code>, compiles, and declares only <code>Lab11</code> as public.</li>
+  <li>No &ldquo;Not implemented&rdquo; stub is left.</li>
+  <li>The given <code>BFS</code>, <code>toString</code> and <code>contains</code> are unchanged.</li>
+  <li>No method except <code>main</code> prints anything.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

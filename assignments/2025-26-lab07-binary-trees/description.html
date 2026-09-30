@@ -1,0 +1,135 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 7: Binary Trees</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 7 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file, whose comments (kept in the starter) describe the algorithms. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>You implement the same <strong>complete binary tree</strong> twice: once in an array (<code>ArrayBT</code>) and once with linked nodes (<code>LinkedBT</code>). Both implement the interface <code>ITree&lt;E&gt;</code>.</p>
+<p>A complete binary tree is filled <strong>level by level, left to right</strong>, like a heap but without any ordering rule. It is <strong>not</strong> a binary search tree: an element's position depends only on when it was inserted, never on its value.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>The array layout of a complete tree: the children of index <code>i</code> are <code>2i + 1</code> and <code>2i + 2</code></li>
+  <li>Recursive preorder, inorder and postorder traversals</li>
+  <li>Breadth-first traversal with a queue and depth-first traversal with a stack</li>
+  <li>Removing from a complete tree by moving the last element into the hole</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab07.java</code> file. Only <code>Lab07</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li><strong>DO NOT THROW EXCEPTIONS</strong> (last year's rule). Replace every <code>"Not implemented"</code> stub; the special cases are handled as described below.</li>
+  <li>Keep the given interface, <code>Node</code> class, fields and constructors. Keep the fields <code>private</code>.</li>
+  <li>You may use <code>java.util.List</code>, <code>Queue</code>, <code>LinkedList</code> and <code>Stack</code> (already imported) for traversals, but the trees themselves must be stored in the given <code>data</code> array and the given <code>Node</code> objects.</li>
+  <li>Do not print from any method except <code>main</code>.</li>
+</ul>
+
+<h2>The ITree&lt;E&gt; Interface</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>size()</code></td><td><code>int</code></td><td>Number of elements.</td></tr>
+<tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when there are no elements.</td></tr>
+<tr><td><code>insert(E element)</code></td><td><code>void</code></td><td>Puts <code>element</code> in the next free position (level by level, left to right). <code>null</code> is ignored. Duplicates are allowed.</td></tr>
+<tr><td><code>remove(E element)</code></td><td><code>boolean</code></td><td>Finds the <strong>first</strong> element equal to <code>element</code> in level order, replaces its value with the value of the <strong>last</strong> element, and deletes the last position. Returns <code>true</code> if something was removed, otherwise <code>false</code> (also for <code>null</code>).</td></tr>
+<tr><td><code>contains(E element)</code></td><td><code>boolean</code></td><td><code>true</code> if some element <code>equals</code> it. <code>contains(null)</code> is <code>false</code>.</td></tr>
+<tr><td><code>BFS(List&lt;E&gt; list)</code></td><td><code>void</code></td><td><strong>Appends</strong> the elements to <code>list</code> in level order.</td></tr>
+<tr><td><code>DFS(List&lt;E&gt; list)</code></td><td><code>void</code></td><td>Appends the elements in depth-first (preorder) order.</td></tr>
+<tr><td><code>preorder(List&lt;E&gt; list)</code></td><td><code>void</code></td><td>Appends root, left subtree, right subtree.</td></tr>
+<tr><td><code>inorder(List&lt;E&gt; list)</code></td><td><code>void</code></td><td>Appends left subtree, root, right subtree.</td></tr>
+<tr><td><code>postorder(List&lt;E&gt; list)</code></td><td><code>void</code></td><td>Appends left subtree, right subtree, root.</td></tr>
+</tbody></table></div>
+<p>The traversal methods only <strong>add</strong> to the given list: they never clear it or remove anything from it. On an empty tree they add nothing.</p>
+
+<h2>Part 1: ArrayBT&lt;E&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>data</code></td><td><code>E[]</code></td><td>The tree in level order: the root is <code>data[0]</code>; the children of <code>data[i]</code> are <code>data[2i + 1]</code> and <code>data[2i + 2]</code>. Its length is the capacity given to the constructor and never changes.</td></tr>
+<tr><td><code>size</code></td><td><code>int</code></td><td>Elements are in <code>data[0]</code> to <code>data[size - 1]</code>; all other slots are <code>null</code>.</td></tr>
+</tbody></table></div>
+<ul>
+  <li><code>insert</code>: writes to <code>data[size]</code>. When the array is full, the element is ignored.</li>
+  <li><code>remove</code>: <code>data[target] = data[size - 1]</code>, then <code>data[size - 1] = null</code> and <code>size--</code>.</li>
+  <li><code>preorder</code>, <code>inorder</code>, <code>postorder</code> must use the recursive helpers <code>recPreorder</code>, <code>recInorder</code>, <code>recPostorder</code>. An index <code>&ge; size</code> is an empty subtree.</li>
+  <li><code>BFS</code> simply walks <code>data[0..size-1]</code>. <code>DFS</code> may call <code>preorder</code>.</li>
+</ul>
+
+<h2>Part 2: LinkedBT&lt;E&gt;</h2>
+<p>Uses the given <code>Node&lt;E&gt;</code> (<code>data</code>, <code>left</code>, <code>right</code>) and the fields <code>root</code> and <code>size</code>. The shape of the tree must always be exactly the same as the <code>ArrayBT</code> with the same operations.</p>
+<ul>
+  <li><code>insert</code>: breadth-first search from the root for the first node with a missing <code>left</code> (checked first) or <code>right</code> child, and attach the new node there. On an empty tree the new node becomes <code>root</code>.</li>
+  <li><code>remove</code>: find the target by BFS, find the last node by BFS, copy the last node's value into the target, then detach the last node from its parent. Removing the only node makes <code>root</code> <code>null</code>.</li>
+  <li><code>BFS</code> must use a <code>Queue&lt;Node&lt;E&gt;&gt;</code>.</li>
+  <li><code>DFS</code> must use a <code>Stack&lt;Node&lt;E&gt;&gt;</code> and must <strong>not</strong> call the recursive preorder: pop a node, add it, push its right child and then its left child. The result equals the preorder.</li>
+</ul>
+
+<h2>Example</h2>
+<pre><code>insert 1, 2, 3, 4, 5, 6        array: [1, 2, 3, 4, 5, 6]
+
+            1
+          /   \
+         2     3
+        / \   /
+       4   5 6
+
+BFS       [1, 2, 3, 4, 5, 6]
+preorder  [1, 2, 4, 5, 3, 6]      (DFS gives the same)
+inorder   [4, 2, 5, 1, 6, 3]
+postorder [4, 5, 2, 6, 3, 1]
+
+remove(2) -&gt; true: 2 is replaced by the last element 6, and the last position is deleted
+
+            1
+          /   \
+         6     3            array: [1, 6, 3, 4, 5, null]
+        / \
+       4   5
+
+remove(9) -&gt; false</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>Traversals and <code>remove</code> on an empty tree</li>
+  <li>Removing the root, the last element, and the only element; inserting again afterwards</li>
+  <li>Duplicates: <code>remove</code> removes only the first one in level order</li>
+  <li><code>insert(null)</code>, <code>remove(null)</code>, <code>contains(null)</code></li>
+  <li>Inserting into a full <code>ArrayBT</code></li>
+  <li>A list that already contains elements: the traversal appends after them</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>ArrayBT</code>: <code>size</code>, <code>isEmpty</code>, <code>insert</code>, <code>BFS</code>, then the recursive traversals, <code>contains</code>, <code>remove</code></li>
+  <li><code>LinkedBT</code>: <code>insert</code> and <code>BFS</code> first, then the traversals, <code>DFS</code> with a stack, <code>contains</code>, <code>remove</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab07.java</code>, compiles, and declares only <code>Lab07</code> as public.</li>
+  <li>No method throws an exception (no &ldquo;Not implemented&rdquo; stub is left).</li>
+  <li><code>LinkedBT.DFS</code> uses a <code>Stack</code>, <code>LinkedBT.BFS</code> uses a <code>Queue</code>.</li>
+  <li>No method except <code>main</code> prints anything.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

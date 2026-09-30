@@ -1,0 +1,138 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 6: Stacks and Queues</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 6 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. The class names, fields and interfaces are last year's. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>stack</strong> is last-in, first-out (LIFO): <code>push</code> adds on top and <code>pop</code> removes from the top. A <strong>queue</strong> is first-in, first-out (FIFO): <code>enqueue</code> adds at the rear and <code>dequeue</code> removes from the front. In this lab you implement each of them twice: once on a fixed-size array and once on linked nodes.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>An array-based stack that uses one index (<code>top</code>) to know where the next item goes</li>
+  <li>A <strong>circular</strong> array-based queue (<code>front</code> and <code>size</code>, indexes wrap around with <code>%</code>)</li>
+  <li>A linked stack (insert and remove at the head) and a linked queue (insert at <code>rear</code>, remove at <code>front</code>)</li>
+  <li>Programming to an interface: all four classes can be used as a <code>Stack&lt;E&gt;</code> or a <code>Queue&lt;E&gt;</code></li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab06.java</code> file. Only <code>Lab06</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Do not use any <code>java.util</code> class (no <code>ArrayList</code>, <code>LinkedList</code>, <code>ArrayDeque</code>, <code>java.util.Stack</code>, &hellip;). The interfaces <code>List</code>, <code>Stack</code> and <code>Queue</code> in this file are your own.</li>
+  <li>Keep the given interfaces, the given <code>Node</code> class and the given fields and constructors. Keep all fields <code>private</code>.</li>
+  <li><strong>No resizing:</strong> the array-based classes always keep their array of length <code>DEFAULT_CAPACITY = 4</code>.</li>
+  <li><strong>Do not throw exceptions</strong> and do not print. The special cases are handled with the return values below.</li>
+</ul>
+
+<h2>The Interfaces</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when there are no items.</td></tr>
+<tr><td><code>size()</code></td><td><code>int</code></td><td>Number of items currently stored.</td></tr>
+<tr><td><code>push(E item)</code> (stack)</td><td><code>void</code></td><td>Puts <code>item</code> on top. If <code>item</code> is <code>null</code>, or an array stack is full, nothing happens.</td></tr>
+<tr><td><code>pop()</code> (stack)</td><td><code>E</code></td><td>Removes and returns the top item. Returns <code>null</code> when the stack is empty.</td></tr>
+<tr><td><code>top()</code> (stack)</td><td><code>E</code></td><td>Returns the top item <strong>without</strong> removing it, or <code>null</code> when empty.</td></tr>
+<tr><td><code>enqueue(E item)</code> (queue)</td><td><code>void</code></td><td>Adds <code>item</code> at the rear. If <code>item</code> is <code>null</code>, or an array queue is full, nothing happens.</td></tr>
+<tr><td><code>dequeue()</code> (queue)</td><td><code>E</code></td><td>Removes and returns the front item. Returns <code>null</code> when the queue is empty.</td></tr>
+<tr><td><code>front()</code> (queue)</td><td><code>E</code></td><td>Returns the front item <strong>without</strong> removing it, or <code>null</code> when empty.</td></tr>
+</tbody></table></div>
+
+<h2>Part 1: ArrayStack&lt;E&gt;</h2>
+<h3>Fields</h3>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>data</code></td><td><code>E[]</code></td><td>The items. <code>data[0]</code> is the bottom of the stack. Length is always 4.</td></tr>
+<tr><td><code>top</code></td><td><code>int</code></td><td>The index where the <strong>next</strong> pushed item goes, which is also the number of items.</td></tr>
+</tbody></table></div>
+<h3>Rules</h3>
+<ul>
+  <li><code>push</code> writes to <code>data[top]</code> and increases <code>top</code>. A fifth push onto a full stack is ignored.</li>
+  <li><code>pop</code> must set the freed slot back to <code>null</code> so the array does not keep a reference to a removed item.</li>
+</ul>
+
+<h2>Part 2: ArrayQueue&lt;E&gt; (circular)</h2>
+<h3>Fields</h3>
+<div class="vd-table"><table>
+<thead><tr><th>Field</th><th>Type</th><th>Requirements</th></tr></thead>
+<tbody>
+<tr><td><code>data</code></td><td><code>E[]</code></td><td>The items. Length is always 4.</td></tr>
+<tr><td><code>front</code></td><td><code>int</code></td><td>Index of the front item.</td></tr>
+<tr><td><code>size</code></td><td><code>int</code></td><td>Number of items.</td></tr>
+</tbody></table></div>
+<h3>Rules</h3>
+<ul>
+  <li>The rear slot is <code>(front + size) % data.length</code>; <code>enqueue</code> writes there.</li>
+  <li><code>dequeue</code> sets the old front slot to <code>null</code> and moves <code>front</code> to <code>(front + 1) % data.length</code>. Items are never shifted.</li>
+  <li>Because the indexes wrap around, after <code>dequeue</code> frees a slot the queue can hold 4 items again. It is full only when <code>size == 4</code>.</li>
+</ul>
+
+<h2>Part 3: LinkedStack&lt;E&gt;</h2>
+<p>Uses the given <code>Node&lt;E&gt;</code> (<code>data</code>, <code>next</code>). The field <code>top</code> is the node of the top item (<code>null</code> when empty); each node's <code>next</code> points to the item below it. <code>push</code> and <code>pop</code> work at <code>top</code> in <code>O(1)</code>. There is no capacity limit.</p>
+
+<h2>Part 4: LinkedQueue&lt;E&gt;</h2>
+<p><code>front</code> is the node of the front item and <code>rear</code> the node of the last item. <code>enqueue</code> links a new node after <code>rear</code>; <code>dequeue</code> removes the <code>front</code> node. Both are <code>O(1)</code>. When the last item is dequeued, <strong>both</strong> <code>front</code> and <code>rear</code> must become <code>null</code>, so that a later <code>enqueue</code> works. There is no capacity limit.</p>
+
+<h2>Example</h2>
+<pre><code>ArrayQueue&lt;Integer&gt; q = new ArrayQueue&lt;&gt;();
+q.enqueue(1); q.enqueue(2); q.enqueue(3); q.enqueue(4);   // full: [1, 2, 3, 4], front = 0
+q.enqueue(5);            // ignored, still 4 items
+q.dequeue();             // 1   -&gt; data = [null, 2, 3, 4], front = 1
+q.dequeue();             // 2   -&gt; data = [null, null, 3, 4], front = 2
+q.enqueue(5);            //     -&gt; data = [5, null, 3, 4]   (wrapped around to index 0)
+q.enqueue(6);            //     -&gt; data = [5, 6, 3, 4], size = 4
+q.dequeue();             // 3
+q.front();               // 4
+
+Stack&lt;String&gt; s = new LinkedStack&lt;&gt;();
+s.pop();                 // null (empty)
+s.push("a"); s.push("b");
+s.top();                 // "b"
+s.pop();                 // "b"
+s.size();                // 1</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li><code>pop</code>, <code>top</code>, <code>dequeue</code> and <code>front</code> on an empty structure (return <code>null</code>)</li>
+  <li><code>push</code> / <code>enqueue</code> on a full array structure and with a <code>null</code> item (ignored)</li>
+  <li>An array queue whose items wrap around the end of the array, many times in a row</li>
+  <li>Emptying a structure completely and then using it again</li>
+  <li>Many items (for example 100) in the linked versions</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>ArrayStack</code>, then <code>LinkedStack</code></li>
+  <li><code>LinkedQueue</code></li>
+  <li><code>ArrayQueue</code> (the circular one is the trickiest)</li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab06.java</code>, compiles, and declares only <code>Lab06</code> as public.</li>
+  <li>No <code>java.util</code> class is used.</li>
+  <li>The arrays are never replaced or resized, and all fields are private.</li>
+  <li>No method throws an exception or prints anything.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

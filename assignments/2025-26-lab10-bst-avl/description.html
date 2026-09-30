@@ -1,0 +1,127 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 10: Binary Search Trees and AVL Trees</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 10 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. Its TODO comments and rotation diagrams are kept in the starter. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>binary search tree</strong> keeps, for every node, smaller elements in the left subtree and larger elements in the right subtree. Inserting sorted data into a plain BST creates a long chain, so its operations become <code>O(n)</code>. An <strong>AVL tree</strong> is a BST that re-balances itself with rotations after every insert and remove. It keeps its height <code>O(log n)</code>.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Recursive BST search, insert and remove (leaf, one child, two children)</li>
+  <li>Storing and updating the height in each node</li>
+  <li>The balance factor and the four rotation cases (LL, RR, LR, RL)</li>
+  <li>Inheritance: <code>AVLTree</code> extends <code>BST</code> and only overrides <code>insertRec</code> and <code>removeRec</code></li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab10.java</code> file. Only <code>Lab10</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration and do not use any <code>java.util</code> class.</li>
+  <li>Keep the given interfaces, the <code>Node</code> class and the given methods of <code>BST</code> (<code>size</code>, <code>isEmpty</code>, <code>contains</code>, <code>insert</code>, <code>remove</code>). Do not add fields.</li>
+  <li>Compare elements <strong>only</strong> with <code>compareTo</code>.</li>
+  <li><strong>No duplicates:</strong> inserting an element that is already in the tree changes nothing. Inserting or removing <code>null</code> changes nothing, and <code>contains(null)</code> is <code>false</code>. Removing a missing element changes nothing.</li>
+  <li><code>size</code> must always be the number of nodes: increase it where a new node is created, decrease it where a node is really unlinked.</li>
+  <li>Do not throw exceptions and do not print.</li>
+</ul>
+
+<h2>Part 1: BST&lt;E&gt; (unbalanced)</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>containsRec(Node&lt;E&gt; n, E e)</code></td><td><code>boolean</code></td><td>Recursive search in the subtree <code>n</code>: go left when <code>e</code> is smaller, right when larger.</td></tr>
+<tr><td><code>insertRec(Node&lt;E&gt; n, E e)</code></td><td><code>Node&lt;E&gt;</code></td><td>Inserts into the subtree <code>n</code> and returns the (possibly new) subtree root. An empty spot (<code>n == null</code>) becomes a new node. No balancing.</td></tr>
+<tr><td><code>removeRec(Node&lt;E&gt; n, E e)</code></td><td><code>Node&lt;E&gt;</code></td><td>Removes <code>e</code> from the subtree and returns the new subtree root. A node with no child or one child is replaced by that child (or <code>null</code>). A node with <strong>two</strong> children takes the value of its <strong>in-order successor</strong> (<code>findMin(n.right)</code>), and then that successor is removed from the right subtree.</td></tr>
+<tr><td><code>findMin(Node&lt;E&gt; n)</code></td><td><code>Node&lt;E&gt;</code></td><td>The leftmost node of the subtree <code>n</code>, or <code>null</code> if <code>n</code> is <code>null</code>.</td></tr>
+</tbody></table></div>
+
+<h2>Part 2: AVLTree&lt;E&gt; extends BST&lt;E&gt;</h2>
+<p>The <code>height</code> of a node is the number of nodes on the longest path from it down to a leaf: a leaf has height <code>1</code> (set by the <code>Node</code> constructor) and an empty subtree has height <code>0</code>. In an AVL tree every node's <code>height</code> field must always be correct.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>insertRec</code>, <code>removeRec</code></td><td><code>Node&lt;E&gt;</code></td><td>Same as the BST versions (same successor rule), but after changing a subtree: update the height of <code>n</code> and return <code>balance(n)</code>.</td></tr>
+<tr><td><code>height()</code></td><td><code>int</code></td><td>Height of the whole tree: <code>0</code> when empty.</td></tr>
+<tr><td><code>height(Node&lt;E&gt; n)</code> (private)</td><td><code>int</code></td><td><code>0</code> for <code>null</code>, otherwise <code>n.height</code>.</td></tr>
+<tr><td><code>updateHeight(Node&lt;E&gt; n)</code> (private)</td><td><code>void</code></td><td><code>n.height = 1 + max(height(n.left), height(n.right))</code>.</td></tr>
+<tr><td><code>getBalanceFactor(Node&lt;E&gt; n)</code></td><td><code>int</code></td><td><code>height(n.left) - height(n.right)</code>; <code>0</code> for <code>null</code>.</td></tr>
+<tr><td><code>balance(Node&lt;E&gt; n)</code></td><td><code>Node&lt;E&gt;</code></td><td>If the balance factor is <code>&gt; 1</code> (left-heavy): when <code>getBalanceFactor(n.left) &ge; 0</code> do <code>rotateRight(n)</code>, otherwise <code>rotateLeftRight(n)</code>. If it is <code>&lt; -1</code> (right-heavy): when <code>getBalanceFactor(n.right) &le; 0</code> do <code>rotateLeft(n)</code>, otherwise <code>rotateRightLeft(n)</code>. Otherwise return <code>n</code> unchanged. Returns the new subtree root (<code>null</code> for <code>null</code>).</td></tr>
+<tr><td><code>rotateLeft(Node&lt;E&gt; y)</code></td><td><code>Node&lt;E&gt;</code></td><td><code>x = y.right</code> becomes the subtree root, <code>y</code> becomes <code>x.left</code>, and the old <code>x.left</code> becomes <code>y.right</code>. Update the height of <code>y</code>, then of <code>x</code>. Returns <code>x</code>.</td></tr>
+<tr><td><code>rotateRight(Node&lt;E&gt; x)</code></td><td><code>Node&lt;E&gt;</code></td><td>The mirror image: <code>y = x.left</code> becomes the root, <code>x</code> becomes <code>y.right</code>, the old <code>y.right</code> becomes <code>x.left</code>. Update <code>x</code>, then <code>y</code>. Returns <code>y</code>.</td></tr>
+<tr><td><code>rotateLeftRight(Node&lt;E&gt; n)</code></td><td><code>Node&lt;E&gt;</code></td><td><code>n.left = rotateLeft(n.left)</code>, then return <code>rotateRight(n)</code>.</td></tr>
+<tr><td><code>rotateRightLeft(Node&lt;E&gt; n)</code></td><td><code>Node&lt;E&gt;</code></td><td><code>n.right = rotateRight(n.right)</code>, then return <code>rotateLeft(n)</code>.</td></tr>
+</tbody></table></div>
+<p>The tests also call <code>getBalanceFactor</code>, <code>balance</code> and the rotations directly on small trees built from <code>Node</code> objects whose heights are already correct.</p>
+
+<h2>Example</h2>
+<pre><code>insert 1, 2, 3, 4, 5, 6, 7
+
+plain BST (a chain, height 7):        AVL tree (height 3):
+
+1                                             4
+ \                                          /   \
+  2                                        2     6
+   \                                      / \   / \
+    ...                                  1   3 5   7
+      7
+
+AVL insert 30, 10, 20   (LR case)  -&gt;  20(10, 30)
+AVL insert 10, 30, 20   (RL case)  -&gt;  20(10, 30)
+
+AVL: insert 20, 10, 30, 25, 35, then remove 10
+  node 20 has balance factor -2, its right child 30 has 0  -&gt;  rotateLeft(20)
+
+        30
+       /  \
+     20    35          heights: 30 -&gt; 3, 20 -&gt; 2, 25 and 35 -&gt; 1
+       \
+        25
+
+BST: insert 50, 30, 70, 60, 80, then remove 50 (two children)
+  50 takes the value of its successor 60, and 60 is removed from the right subtree
+  -&gt;  60(30, 70(-, 80))</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>Empty trees: <code>contains</code>, <code>remove</code>, <code>height()</code>, <code>findMin(null)</code></li>
+  <li>Duplicates and <code>null</code> (ignored; <code>size</code> unchanged)</li>
+  <li>Removing a leaf, a node with only a left or only a right child, a node with two children, and the root</li>
+  <li>All four AVL cases on insert, and rebalancing after remove (including a child with balance factor <code>0</code>)</li>
+  <li>Correct <code>height</code> values in every AVL node after every operation</li>
+  <li>Long sequences: sorted inserts into an AVL tree must keep the height logarithmic</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>BST</code>: <code>findMin</code>, <code>containsRec</code>, <code>insertRec</code>, <code>removeRec</code></li>
+  <li><code>AVLTree</code>: <code>height</code>, <code>updateHeight</code>, <code>getBalanceFactor</code>, the rotations, <code>balance</code></li>
+  <li><code>AVLTree.insertRec</code>, then <code>AVLTree.removeRec</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab10.java</code>, compiles, and declares only <code>Lab10</code> as public.</li>
+  <li>No &ldquo;Not implemented&rdquo; stub is left, no <code>java.util</code> class is used and nothing is printed.</li>
+  <li><code>size</code> is correct after duplicates and after removing missing elements.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>

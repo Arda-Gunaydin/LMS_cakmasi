@@ -1,0 +1,126 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures &middot; 2025&ndash;2026 (previous year)</div>
+<div class="vd-title">Lab 12: Adjacency List Graph</div>
+</div>
+
+<div class="vd-box">
+<h2>Last Year's Lab</h2>
+<p>This is <strong>last year's</strong> Lab 12 from the 2025&ndash;2026 academic year. It is <strong>not</strong> an assignment of this semester; it is here only for practice. The lightbulb button in the editor shows a solution. The original handout was not available, so this text was reconstructed from last year's starter file. Its TODO comments are kept in the starter. The rules below are the ones the tests check.</p>
+</div>
+
+<h2>Objective</h2>
+<p>An <strong>undirected graph</strong> is stored as an <strong>adjacency list</strong>: every vertex is a <code>Node&lt;T&gt;</code> that keeps the list of its neighbors, and the <code>Graph&lt;T&gt;</code> finds the node of a value through a <code>Map&lt;T, Node&lt;T&gt;&gt;</code>. You implement building and changing the graph, the two graph traversals, and the shortest path in an unweighted graph.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Keeping an undirected edge consistent: it is stored in <strong>both</strong> neighbor lists</li>
+  <li>Breadth-first search with a queue and a visited set</li>
+  <li>Recursive depth-first search</li>
+  <li>Shortest paths with BFS and parent pointers, then rebuilding the path backwards</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab12.java</code> file. Only <code>Lab12</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration. You may use any class from <code>java.util</code> (already imported with <code>java.util.*</code>).</li>
+  <li>Keep the given interfaces, the fields of <code>Node</code> (<code>data</code>, <code>neighbors</code>, <code>visited</code>, <code>parent</code>) and the <code>nodes</code> map of <code>Graph</code>. Keep the given <code>toString</code> and <code>printGraph</code>.</li>
+  <li><strong>Order matters:</strong> a node's neighbors are kept in the order the edges were added, and every traversal visits neighbors in that order.</li>
+  <li>Do not throw exceptions. Only <code>main</code> and the given <code>printGraph</code> may print.</li>
+</ul>
+
+<h2>Part 1: Node&lt;T&gt;</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>addNeighbor(Node&lt;T&gt; neighbor)</code></td><td><code>void</code></td><td>Appends <code>neighbor</code> to <code>neighbors</code>. Nothing happens if it is <code>null</code>, the node itself, or already a neighbor.</td></tr>
+<tr><td><code>removeNeighbor(Node&lt;T&gt; neighbor)</code></td><td><code>void</code></td><td>Removes <code>neighbor</code> from <code>neighbors</code> if it is there.</td></tr>
+</tbody></table></div>
+
+<h2>Part 2: Building the Graph</h2>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>addNode(T data)</code></td><td><code>void</code></td><td>Adds a new node with no neighbors, unless <code>data</code> is <code>null</code> or already has a node (then nothing changes and the existing edges are kept).</td></tr>
+<tr><td><code>addEdge(T data1, T data2)</code></td><td><code>void</code></td><td>Creates the missing nodes, then adds each node to the other's neighbor list. Nothing happens if either value is <code>null</code> or both are equal (no self-loops). An existing edge is not added twice.</td></tr>
+<tr><td><code>removeEdge(T data1, T data2)</code></td><td><code>void</code></td><td>If both nodes exist, removes the edge in both directions. The nodes stay in the graph.</td></tr>
+<tr><td><code>removeNode(T data)</code></td><td><code>void</code></td><td>If the node exists, removes it from every neighbor list and then from <code>nodes</code>. Otherwise nothing happens.</td></tr>
+</tbody></table></div>
+
+<h2>Part 3: Traversals and Shortest Path</h2>
+<p>All three methods return a <strong>new</strong> list of values. If the start value has no node, they return an empty list.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead>
+<tbody>
+<tr><td><code>bfs(T startData)</code></td><td><code>List&lt;T&gt;</code></td><td>Breadth-first order from the start: use a queue; mark a node visited when it is <strong>added</strong> to the queue; add each dequeued node to the result, then enqueue its unvisited neighbors in list order. Only the start's connected component is visited.</td></tr>
+<tr><td><code>dfs(T startData)</code></td><td><code>List&lt;T&gt;</code></td><td>Recursive depth-first order (use <code>dfsHelper</code>): add the current node, then recursively visit each unvisited neighbor in list order.</td></tr>
+<tr><td><code>getShortestPath(T startData, T endData)</code></td><td><code>List&lt;T&gt;</code></td><td>A path with the fewest edges, from <code>startData</code> to <code>endData</code>, both included. Run BFS from the start, setting each newly discovered node's <code>parent</code> (neighbors in list order, so among equally short paths the one BFS finds first is returned), then follow <code>parent</code> back from the end and reverse. The same value twice gives a one-element path. If either node is missing or the end cannot be reached, return an empty list. The <code>visited</code>/<code>parent</code> fields must be reset at the start of every call, so the method works when called many times.</td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<pre><code>Graph&lt;String&gt; g = new Graph&lt;&gt;();
+g.addEdge("A", "B");
+g.addEdge("A", "C");
+g.addEdge("B", "D");
+g.addEdge("C", "D");
+g.addEdge("D", "E");
+
+        A
+       / \
+      B   C          neighbors of A: [B, C]
+       \ /           neighbors of D: [B, C, E]
+        D
+        |
+        E
+
+g.bfs("A")                  // [A, B, C, D, E]
+g.dfs("A")                  // [A, B, D, C, E]
+g.getShortestPath("A", "E") // [A, B, D, E]
+g.getShortestPath("E", "A") // [E, D, B, A]
+g.getShortestPath("A", "A") // [A]
+g.bfs("Z")                  // []
+
+g.removeNode("D");
+g.bfs("A")                  // [A, B, C]
+g.getShortestPath("A", "E") // []   (E is no longer reachable)</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>Duplicate nodes and edges, self-loops and <code>null</code> values (ignored)</li>
+  <li>Removing a missing edge or node, and removing a node that has many edges</li>
+  <li>Cycles: no node may appear twice in a traversal</li>
+  <li>Disconnected graphs: traversals only visit the start's component; unreachable targets give an empty path</li>
+  <li>A start or end value that is not in the graph</li>
+  <li>Calling <code>getShortestPath</code> several times on the same graph</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>addNeighbor</code>, <code>removeNeighbor</code></li>
+  <li><code>addNode</code>, <code>addEdge</code>, <code>removeEdge</code>, <code>removeNode</code>; use <code>printGraph</code> to look at the result</li>
+  <li><code>bfs</code>, then <code>dfs</code> with <code>dfsHelper</code></li>
+  <li><code>getShortestPath</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+  <li>The file is named <code>Lab12.java</code>, compiles, and declares only <code>Lab12</code> as public.</li>
+  <li>No &ldquo;Not implemented&rdquo; stub is left.</li>
+  <li>Every edge is stored in both directions and neighbors keep their insertion order.</li>
+  <li>No method except <code>main</code> and <code>printGraph</code> prints anything.</li>
+  <li>Evaluate shows all checks passing.</li>
+</ul>
+</div>
+</div>
