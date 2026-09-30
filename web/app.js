@@ -372,9 +372,9 @@ class AceEditor {
     this.ed = ace.edit(div);
     this.ed.setTheme(aceTheme());
     this.ed.setOptions({ fontSize: fontSize(), showPrintMargin: false, animatedScroll: false });
-    // Autocomplete like the original VPL editor: Ctrl-Space opens the popup (keywords, words in the file).
+    // Autocomplete like the original VPL editor: the popup opens while typing (keywords, words in the file); Ctrl-Space opens it manually.
     if (ace.require && ace.require('ace/ext/language_tools')) {
-      this.ed.setOptions({ enableBasicAutocompletion: true, enableLiveAutocompletion: false });
+      this.ed.setOptions({ enableBasicAutocompletion: true, enableLiveAutocompletion: true });
     }
     this.onChange = onChange;
     this.ed.selection.on('changeCursor', () => {
