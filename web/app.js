@@ -112,6 +112,7 @@ function loadAce() {
             window.ace.config.set('modePath', base);
             window.ace.config.set('themePath', base);
             try { await loadScript(base + 'ext-searchbox.js', 4000); } catch (e) { /* optional */ }
+            try { await loadScript(base + 'ext-language_tools.js', 4000); } catch (e) { /* optional: no autocomplete */ }
             return window.ace;
           }
         } catch (e) { /* next */ }
@@ -371,6 +372,10 @@ class AceEditor {
     this.ed = ace.edit(div);
     this.ed.setTheme(aceTheme());
     this.ed.setOptions({ fontSize: fontSize(), showPrintMargin: false, animatedScroll: false });
+    // Autocomplete like the original VPL editor: Ctrl-Space opens the popup (keywords, words in the file).
+    if (ace.require && ace.require('ace/ext/language_tools')) {
+      this.ed.setOptions({ enableBasicAutocompletion: true, enableLiveAutocompletion: false });
+    }
     this.onChange = onChange;
     this.ed.selection.on('changeCursor', () => {
       const p = this.ed.getCursorPosition();
