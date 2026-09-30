@@ -1,0 +1,199 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures</div>
+<div class="vd-title">Lab 5: Algorithm Analysis</div>
+</div>
+
+<div class="vd-sigs">
+<div class="vd-sigs-title">The 9 methods you have to write</div>
+<div class="vd-sigs-list">
+<div>public static long countLinear(int n)</div>
+<div>public static long countConditionChecks(int n)</div>
+<div>public static long countNested(int n)</div>
+<div>public static long countPairs(int n)</div>
+<div>public static long countTriangle(int n)</div>
+<div>public static int countHalvings(int n)</div>
+<div>public static String dominantTerm(long c0, long c1, long c2, long c3)</div>
+<div>public static int countPairsWithSum(int[] sorted, int target)</div>
+<div>public static int twoPointerComparisons(int[] sorted, int target)</div>
+</div>
+</div>
+
+<h2>Objective</h2>
+<p>Algorithm analysis compares algorithms by how much work they do as the input grows. In this lab you count the work of common loop shapes exactly, find the dominant term of a running-time expression, and use the two-pointer method, which needs far fewer comparisons than checking every pair.</p>
+<p>This lab practices:</p>
+<ul>
+<li>Counting loop body executions and condition checks exactly</li>
+<li>Full, triangular, and halving loops</li>
+<li>Keeping only the dominant term of a polynomial</li>
+<li>Replacing an <code>O(n<sup>2</sup>)</code> pair search with an <code>O(n)</code> two-pointer search</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>General Rules</h2>
+<ul>
+<li>Complete all work in the provided <code>Lab05.java</code> file. Only <code>Lab05</code> is declared <code>public</code>.</li>
+<li>Do not add a package declaration.</li>
+<li>Do not import or use anything from <code>java.util</code>.</li>
+<li>The five methods of Part 1 must give their answer with a formula, in constant time. The tests use values of <code>n</code> near two billion, so a method that actually runs the loop will time out.</li>
+<li>Counts are returned as <code>long</code>. Compute them in <code>long</code> arithmetic so that <code>n * n</code> does not overflow <code>int</code>.</li>
+<li>Do not print from the required methods.</li>
+</ul>
+
+<h2>Part 1: Exact Counts</h2>
+<p>Each method returns how many times the described operation runs for input size <code>n</code>. For every method in this part, a negative <code>n</code> causes <code>IllegalArgumentException</code>, and <code>n = 0</code> is valid.</p>
+
+<h3>countLinear</h3>
+<div class="vd-sig">public static long countLinear(int n)</div>
+<p>Returns the number of times the body of <code>for (int i = 0; i &lt; n; i++)</code> runs.</p>
+
+<h3>countConditionChecks</h3>
+<div class="vd-sig">public static long countConditionChecks(int n)</div>
+<p>Returns the number of times the condition <code>i &lt; n</code> of the same loop is checked. The final check, the one that is false, counts.</p>
+
+<h3>countNested</h3>
+<div class="vd-sig">public static long countNested(int n)</div>
+<p>Returns the number of times the inner body runs when <code>i</code> goes from <code>0</code> to <code>n - 1</code> and, for each <code>i</code>, <code>j</code> goes from <code>0</code> to <code>n - 1</code>.</p>
+
+<h3>countPairs</h3>
+<div class="vd-sig">public static long countPairs(int n)</div>
+<p>Returns the number of times the inner body runs when <code>i</code> goes from <code>0</code> to <code>n - 1</code> and, for each <code>i</code>, <code>j</code> goes from <code>i + 1</code> to <code>n - 1</code>.</p>
+
+<h3>countTriangle</h3>
+<div class="vd-sig">public static long countTriangle(int n)</div>
+<p>Returns the number of times the inner body runs when <code>i</code> goes from <code>0</code> to <code>n - 1</code> and, for each <code>i</code>, <code>j</code> goes from <code>0</code> to <code>i</code>.</p>
+
+<div class="vd-table"><table>
+<thead><tr><th>Call</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><code>countLinear(5)</code></td><td><code>5</code></td></tr>
+<tr><td><code>countConditionChecks(5)</code></td><td><code>6</code></td></tr>
+<tr><td><code>countNested(5)</code></td><td><code>25</code></td></tr>
+<tr><td><code>countPairs(5)</code></td><td><code>10</code></td></tr>
+<tr><td><code>countTriangle(5)</code></td><td><code>15</code></td></tr>
+<tr><td><code>countConditionChecks(0)</code></td><td><code>1</code></td></tr>
+<tr><td><code>countPairs(1)</code></td><td><code>0</code></td></tr>
+<tr><td><code>countLinear(-1)</code></td><td><code>IllegalArgumentException</code></td></tr>
+</tbody></table></div>
+
+<h2>Part 2: Halving and Dominant Terms</h2>
+
+<h3>countHalvings</h3>
+<div class="vd-sig">public static int countHalvings(int n)</div>
+<p>Returns the number of times the body of this loop runs:</p>
+<pre><code>int k = n;
+while (k &gt; 1) {
+    k = k / 2;      // integer division
+}</code></pre>
+<p>This equals <code>floor(log2 n)</code>. <code>n</code> must be at least <code>1</code>; otherwise throw <code>IllegalArgumentException</code>.</p>
+<div class="vd-table"><table>
+<thead><tr><th>Call</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><code>countHalvings(1)</code></td><td><code>0</code></td></tr>
+<tr><td><code>countHalvings(5)</code></td><td><code>2</code> (5 &rarr; 2 &rarr; 1)</td></tr>
+<tr><td><code>countHalvings(1024)</code></td><td><code>10</code></td></tr>
+<tr><td><code>countHalvings(1023)</code></td><td><code>9</code></td></tr>
+<tr><td><code>countHalvings(0)</code></td><td><code>IllegalArgumentException</code></td></tr>
+</tbody></table></div>
+
+<h3>dominantTerm</h3>
+<div class="vd-sig">public static String dominantTerm(long c0, long c1, long c2, long c3)</div>
+<p>The running time of an algorithm is <code>c0 + c1*n + c2*n<sup>2</sup> + c3*n<sup>3</sup></code>. Return its Big-O class as one of exactly these four strings: <code>"O(1)"</code>, <code>"O(n)"</code>, <code>"O(n^2)"</code>, <code>"O(n^3)"</code>.</p>
+<ul>
+<li>The class is decided by the highest power of <code>n</code> whose coefficient is not zero. The size of the coefficient does not matter, and a negative coefficient still counts as non-zero.</li>
+<li>If <code>c1</code>, <code>c2</code>, and <code>c3</code> are all zero, the class is <code>"O(1)"</code>, even when <code>c0</code> is also zero.</li>
+</ul>
+<div class="vd-table"><table>
+<thead><tr><th>Call</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><code>dominantTerm(8, 0, 0, 0)</code></td><td><code>"O(1)"</code></td></tr>
+<tr><td><code>dominantTerm(20, 5, 0, 0)</code></td><td><code>"O(n)"</code></td></tr>
+<tr><td><code>dominantTerm(500, 100, 3, 0)</code></td><td><code>"O(n^2)"</code></td></tr>
+<tr><td><code>dominantTerm(0, 0, 1000000, 1)</code></td><td><code>"O(n^3)"</code></td></tr>
+<tr><td><code>dominantTerm(0, 0, 0, 0)</code></td><td><code>"O(1)"</code></td></tr>
+</tbody></table></div>
+
+<h2>Part 3: Counting Pairs With a Given Sum</h2>
+<p>Both methods take an array <code>sorted</code> that is in <strong>strictly increasing</strong> order (no duplicates). If <code>sorted</code> is <code>null</code>, or any element is not larger than the one before it, throw <code>IllegalArgumentException</code>. An empty array and a one-element array are valid.</p>
+<p>Use the two-pointer method: <code>left</code> starts at index <code>0</code> and <code>right</code> at the last index. While <code>left &lt; right</code>, compute <code>sum = sorted[left] + sorted[right]</code> (one <em>comparison</em>), then:</p>
+<ul>
+<li><code>sum == target</code>: a pair is found; move both pointers inward (<code>left++</code>, <code>right--</code>).</li>
+<li><code>sum &lt; target</code>: <code>left++</code>.</li>
+<li><code>sum &gt; target</code>: <code>right--</code>.</li>
+</ul>
+<p>Compute the sum in <code>long</code> so that large values cannot overflow.</p>
+
+<h3>countPairsWithSum</h3>
+<div class="vd-sig">public static int countPairsWithSum(int[] sorted, int target)</div>
+<p>Returns the number of pairs of positions <code>i &lt; j</code> with <code>sorted[i] + sorted[j] == target</code>. The array is not changed.</p>
+
+<h3>twoPointerComparisons</h3>
+<div class="vd-sig">public static int twoPointerComparisons(int[] sorted, int target)</div>
+<p>Returns how many sums the two-pointer method above computes before <code>left</code> and <code>right</code> meet. For an array of length <code>n</code>, this is at most <code>n - 1</code> (and <code>0</code> when <code>n</code> is <code>0</code> or <code>1</code>). The array is not changed.</p>
+
+<div class="vd-table"><table>
+<thead><tr><th>Call (<code>a = [1, 2, 3, 4, 5, 6]</code>)</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><code>countPairsWithSum(a, 7)</code></td><td><code>3</code> (1+6, 2+5, 3+4)</td></tr>
+<tr><td><code>twoPointerComparisons(a, 7)</code></td><td><code>3</code></td></tr>
+<tr><td><code>countPairsWithSum(a, 3)</code></td><td><code>1</code> (1+2)</td></tr>
+<tr><td><code>twoPointerComparisons(a, 3)</code></td><td><code>5</code></td></tr>
+<tr><td><code>countPairsWithSum(a, 100)</code></td><td><code>0</code></td></tr>
+<tr><td><code>twoPointerComparisons(a, 100)</code></td><td><code>5</code></td></tr>
+<tr><td><code>countPairsWithSum(new int[] {1, 1, 2}, 3)</code></td><td><code>IllegalArgumentException</code></td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<p>For <code>a = [1, 2, 3, 4, 5, 6]</code> and <code>target = 3</code>, the pointers move like this:</p>
+<div class="vd-table"><table>
+<thead><tr><th>left</th><th>right</th><th>sum</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>0</code></td><td><code>5</code></td><td><code>7</code></td><td>too large, <code>right--</code></td></tr>
+<tr><td><code>0</code></td><td><code>4</code></td><td><code>6</code></td><td>too large, <code>right--</code></td></tr>
+<tr><td><code>0</code></td><td><code>3</code></td><td><code>5</code></td><td>too large, <code>right--</code></td></tr>
+<tr><td><code>0</code></td><td><code>2</code></td><td><code>4</code></td><td>too large, <code>right--</code></td></tr>
+<tr><td><code>0</code></td><td><code>1</code></td><td><code>3</code></td><td>pair found, both move</td></tr>
+</tbody></table></div>
+<p>Then <code>left = 1</code> and <code>right = 0</code>, so the search stops after 5 comparisons with 1 pair.</p>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+<li><code>n = 0</code> and <code>n = 1</code> in every method of Parts 1 and 2 where they are valid</li>
+<li>Negative <code>n</code>, and <code>countHalvings(0)</code></li>
+<li>Very large <code>n</code> (for example <code>2000000000</code>) without <code>int</code> overflow and without running a loop</li>
+<li><code>null</code>, unsorted, and duplicate-containing arrays in Part 3</li>
+<li>Empty and one-element arrays, and targets with no pair</li>
+<li>Negative numbers and values near <code>Integer.MAX_VALUE</code> in the arrays</li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+<li><code>countLinear</code> and <code>countConditionChecks</code></li>
+<li><code>countNested</code>, <code>countPairs</code>, <code>countTriangle</code>: check each formula with <code>n = 5</code></li>
+<li><code>countHalvings</code></li>
+<li><code>dominantTerm</code></li>
+<li><code>countPairsWithSum</code>, then <code>twoPointerComparisons</code></li>
+</ol>
+
+<div class="vd-box">
+<h2>Before Submission</h2>
+<p>Confirm that:</p>
+<ul>
+<li>The file is named <code>Lab05.java</code> and compiles.</li>
+<li>Only <code>Lab05</code> is declared <code>public</code>, and there is no <code>package</code> line.</li>
+<li>Nothing from <code>java.util</code> is used.</li>
+<li>The Part 1 methods use formulas, not loops.</li>
+<li>No required method prints anything.</li>
+</ul>
+</div>
+</div>

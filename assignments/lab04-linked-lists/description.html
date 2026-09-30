@@ -1,0 +1,138 @@
+<div class="vd">
+<div class="vd-banner">
+<div class="vd-kicker">CSE201 Data Structures</div>
+<div class="vd-title">Lab 4: Linked Lists</div>
+</div>
+
+<h2>Objective</h2>
+<p>A <strong>singly linked list</strong> stores its items in separate nodes. Each node holds one item and a
+reference to the next node. In this lab you build your own generic list, <code>SinglyLinkedList&lt;T&gt;</code>,
+with a <code>head</code> and a <code>tail</code> reference, and then use it to merge two sorted lists.</p>
+<p>This lab practices:</p>
+<ul>
+  <li>Creating, linking and unlinking nodes without an array</li>
+  <li>Keeping <code>head</code>, <code>tail</code> and <code>size</code> correct in every special case (empty list, one item, first and last position)</li>
+  <li>Reversing a list in place by rewiring references</li>
+</ul>
+
+<h2>The Grading Contract</h2>
+<p>The tests never read what your program prints. They call your methods with chosen arguments and compare the returned values with the specification.</p>
+<p>Because of that:</p>
+<ul>
+<li>Method names, parameter types, parameter order, and return types must match this document exactly.</li>
+<li>Return values, not printed text, are graded.</li>
+<li>Invalid inputs must produce the stated result, which is sometimes a value and sometimes an exception.</li>
+<li>A file that does not compile earns no points, so save and evaluate early rather than in the last minute.</li>
+</ul>
+
+<h2>Files</h2>
+<div class="vd-table"><table>
+  <thead><tr><th>File</th><th>Description</th></tr></thead><tbody>
+  <tr><td><code>Lab04.java</code></td><td>Your deliverable. It already contains every declaration; fill in the bodies. Its <code>main</code> is a playground for the Run button and is not graded.</td></tr>
+</tbody></table></div>
+
+<h2>General Rules</h2>
+<ul>
+  <li>Complete all work in the provided <code>Lab04.java</code> file. Only <code>Lab04</code> is declared <code>public</code>.</li>
+  <li>Do not add a package declaration.</li>
+  <li>Do not use any <code>java.util</code> collection class &mdash; no <code>LinkedList</code>, <code>ArrayList</code>,
+  <code>List</code>, <code>Deque</code>, <code>Vector</code> or similar. The list must be built from <code>Node</code> objects.
+  (You may use <code>java.util.NoSuchElementException</code>; it is an exception class, not a collection.)</li>
+  <li>Do not add an array or any other structure to <code>SinglyLinkedList</code>. Keep the given <code>Node</code> class, and keep every field of <code>SinglyLinkedList</code> private.</li>
+  <li>Do not print from the required methods.</li>
+  <li><code>null</code> is never a valid item. Wherever an item is passed in, <code>null</code> causes <code>IllegalArgumentException</code>, except for <code>indexOf</code> and <code>contains</code>, which simply do not find it.</li>
+</ul>
+
+<h2>Part 1: SinglyLinkedList&lt;T&gt;</h2>
+<p>The starter gives you the private nested class <code>Node&lt;T&gt;</code> and the three private fields
+<code>head</code> (first node, or <code>null</code>), <code>tail</code> (last node, or <code>null</code>) and
+<code>size</code>. An empty list has <code>head == null</code>, <code>tail == null</code> and <code>size == 0</code>.
+Indexes start at 0.</p>
+
+<h3>Constructor</h3>
+<ul>
+  <li><code>SinglyLinkedList()</code>: creates an empty list.</li>
+</ul>
+
+<h3>Methods</h3>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>addFirst(T item)</code></td><td><code>void</code></td><td>Inserts <code>item</code> before the current first item.</td></tr>
+  <tr><td><code>addLast(T item)</code></td><td><code>void</code></td><td>Appends <code>item</code> after the current last item. Must use <code>tail</code>, not walk the whole list.</td></tr>
+  <tr><td><code>add(int index, T item)</code></td><td><code>void</code></td><td>Inserts <code>item</code> so that it ends up at position <code>index</code>. Valid indexes are <code>0</code> to <code>size()</code> inclusive; otherwise <code>IndexOutOfBoundsException</code>.</td></tr>
+  <tr><td><code>getFirst()</code></td><td><code>T</code></td><td>Returns the first item without removing it. On an empty list, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>get(int index)</code></td><td><code>T</code></td><td>Returns the item at <code>index</code>. Valid indexes are <code>0</code> to <code>size() - 1</code>; otherwise <code>IndexOutOfBoundsException</code>.</td></tr>
+  <tr><td><code>set(int index, T item)</code></td><td><code>T</code></td><td>Replaces the item at <code>index</code> and returns the <strong>old</strong> item. Same index rule as <code>get</code>. The size does not change.</td></tr>
+  <tr><td><code>removeFirst()</code></td><td><code>T</code></td><td>Removes and returns the first item. On an empty list, throws <code>java.util.NoSuchElementException</code>.</td></tr>
+  <tr><td><code>removeLast()</code></td><td><code>T</code></td><td>Removes and returns the last item. On an empty list, throws <code>java.util.NoSuchElementException</code>. Afterwards <code>tail</code> must point to the new last node.</td></tr>
+  <tr><td><code>remove(int index)</code></td><td><code>T</code></td><td>Removes and returns the item at <code>index</code>. Same index rule as <code>get</code>.</td></tr>
+  <tr><td><code>indexOf(Object item)</code></td><td><code>int</code></td><td>Index of the first item that is <code>equals</code> to <code>item</code>, or <code>-1</code> if there is none.</td></tr>
+  <tr><td><code>contains(Object item)</code></td><td><code>boolean</code></td><td><code>true</code> when <code>indexOf(item) != -1</code>.</td></tr>
+  <tr><td><code>size()</code></td><td><code>int</code></td><td>Number of items in the list.</td></tr>
+  <tr><td><code>isEmpty()</code></td><td><code>boolean</code></td><td><code>true</code> when the list has no items.</td></tr>
+  <tr><td><code>reverse()</code></td><td><code>void</code></td><td>Reverses the list <strong>in place</strong>: the existing nodes are re-linked, no new nodes are created. <code>head</code> and <code>tail</code> swap roles. Does nothing to an empty list or a one-item list.</td></tr>
+  <tr><td><code>removeAll(T item)</code></td><td><code>int</code></td><td>Removes <strong>every</strong> item that is <code>equals</code> to <code>item</code> and returns how many were removed (<code>0</code> if none). Must keep <code>head</code>, <code>tail</code> and <code>size</code> correct.</td></tr>
+  <tr><td><code>toString()</code></td><td><code>String</code></td><td>The items from first to last, separated by <code>", "</code> inside square brackets, for example <code>[10, 20, 30]</code>. An empty list gives <code>[]</code>.</td></tr>
+</tbody></table></div>
+
+<h3>Example</h3>
+<pre><code>SinglyLinkedList&lt;Integer&gt; list = new SinglyLinkedList&lt;&gt;();
+list.addLast(20);          // [20]
+list.addLast(30);          // [20, 30]
+list.addFirst(10);         // [10, 20, 30]
+list.add(1, 15);           // [10, 15, 20, 30]
+list.get(2);               // 20
+list.set(0, 5);            // returns 10 -&gt; [5, 15, 20, 30]
+list.indexOf(30);          // 3
+list.removeLast();         // returns 30 -&gt; [5, 15, 20]
+list.remove(1);            // returns 15 -&gt; [5, 20]
+list.reverse();            // [20, 5]
+list.addLast(7);           // [20, 5, 7]   (tail was updated by reverse)
+list.get(3);               // IndexOutOfBoundsException</code></pre>
+
+<h2>Part 2: Merging Sorted Lists</h2>
+<p>This is a <code>static</code> method of <code>Lab04</code>.</p>
+<div class="vd-table"><table>
+  <thead><tr><th>Method</th><th>Return type</th><th>Required behavior</th></tr></thead><tbody>
+  <tr><td><code>mergeSorted(SinglyLinkedList&lt;Integer&gt; a, SinglyLinkedList&lt;Integer&gt; b)</code></td><td><code>SinglyLinkedList&lt;Integer&gt;</code></td><td>Both lists are sorted in ascending order. Returns a <strong>new</strong> list that contains all items of both lists in ascending order. Equal items from <code>a</code> come before equal items from <code>b</code>. <code>a</code> and <code>b</code> must be left unchanged. If either argument is <code>null</code>, throws <code>IllegalArgumentException</code>.</td></tr>
+</tbody></table></div>
+
+<h3>Examples</h3>
+<pre><code>mergeSorted([1, 4, 9], [2, 3, 10])   -&gt;  [1, 2, 3, 4, 9, 10]
+mergeSorted([], [5, 6])               -&gt;  [5, 6]
+mergeSorted([2, 2], [2])              -&gt;  [2, 2, 2]
+mergeSorted(null, [1])                -&gt;  IllegalArgumentException</code></pre>
+
+<h2>Required Edge Cases</h2>
+<p>Your implementation must correctly handle:</p>
+<ul>
+  <li>An empty list, and a list with exactly one item, for every add and remove method</li>
+  <li>Removing the only item, then adding again (<code>head</code> and <code>tail</code> must both be reset)</li>
+  <li>Inserting at index <code>0</code> and at index <code>size()</code>, and invalid indexes <code>-1</code> and <code>size()</code> (or <code>size() + 1</code> for <code>add</code>)</li>
+  <li><code>removeLast()</code> and <code>remove(size() - 1)</code>: <code>addLast</code> must still work afterwards</li>
+  <li><code>removeAll</code> when the matching items are at the front, at the end, next to each other, or when every item matches</li>
+  <li><code>reverse()</code> followed by <code>addLast</code> and <code>removeLast</code></li>
+</ul>
+
+<h2>Suggested Order</h2>
+<ol>
+  <li><code>addFirst</code>, <code>addLast</code>, <code>size</code>, <code>isEmpty</code>, <code>toString</code> &mdash; then use the Run button.</li>
+  <li><code>get</code>, <code>set</code>, <code>getFirst</code>, <code>indexOf</code>, <code>contains</code>, <code>add(int, T)</code></li>
+  <li><code>removeFirst</code>, <code>remove(int)</code>, <code>removeLast</code></li>
+  <li><code>reverse</code>, <code>removeAll</code></li>
+  <li><code>mergeSorted</code></li>
+</ol>
+
+<div class="vd-box">
+  <h2>Before Submission</h2>
+  <p>Confirm that:</p>
+  <ul>
+    <li>The file is named <code>Lab04.java</code>, compiles, and declares only <code>Lab04</code> as public.</li>
+    <li>No <code>java.util</code> collection is used anywhere in your file.</li>
+    <li>All fields of <code>SinglyLinkedList</code> are private.</li>
+    <li>None of the required methods prints anything.</li>
+    <li>Evaluate shows all checks passing.</li>
+  </ul>
+</div>
+
+</div>
