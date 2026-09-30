@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linked List Çalışma Alanı</title>
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --ink:#1c2233; --muted:#65708a; --accent:#3b6cf6; --node:#e8eeff; --line:#9aa7c7; --new:#22a06b; --del:#e5484d; --hl:#f5a524; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12151d; --card:#1b2030; --ink:#e8ebf5; --muted:#8f9ab5; --accent:#6b8cff; --node:#26305a; --line:#5a6790; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,system-ui,sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border-radius:14px; padding:18px; margin-bottom:16px; box-shadow:0 1px 3px #0002; }
+  h2 { margin:0 0 10px; font-size:1.1rem; }
+  .tabs { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .tabs button { border:1px solid var(--line); background:none; color:var(--ink); padding:6px 14px; border-radius:20px; cursor:pointer; }
+  .tabs button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .stage { overflow-x:auto; padding:34px 6px 14px; min-height:120px; }
+  .row { display:flex; align-items:center; width:max-content; min-width:100%; }
+  .ptr { font-size:.75rem; color:var(--accent); font-weight:700; height:18px; text-align:center; }
+  .cell { display:flex; flex-direction:column; align-items:center; }
+  .node { display:flex; border:2px solid var(--line); border-radius:8px; background:var(--node); overflow:hidden; transition:all .25s; }
+  .node .v { padding:8px 14px; font-weight:700; min-width:44px; text-align:center; }
+  .node .n { padding:8px 10px; border-left:2px solid var(--line); color:var(--muted); font-size:.8rem; }
+  .node.new { border-color:var(--new); } .node.del { border-color:var(--del); opacity:.4; } .node.hl { border-color:var(--hl); box-shadow:0 0 0 3px #f5a52455; }
+  .arrow { width:34px; height:2px; background:var(--line); position:relative; margin:0 2px; margin-top:18px; }
+  .arrow::after { content:""; position:absolute; right:-1px; top:-4px; border:5px solid transparent; border-left:8px solid var(--line); }
+  .null { margin-top:18px; color:var(--muted); font-family:ui-monospace,monospace; font-size:.85rem; padding-left:4px; }
+  .ctl { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  input { width:80px; padding:7px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+  .ctl button { padding:7px 12px; border:0; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; }
+  .ctl button.sec { background:none; border:1px solid var(--line); color:var(--ink); }
+  #log { font-family:ui-monospace,monospace; font-size:.85rem; color:var(--muted); min-height:1.4em; margin-top:10px; }
+  #log.err { color:var(--del); }
+  .info { display:flex; gap:20px; font-family:ui-monospace,monospace; font-size:.85rem; color:var(--muted); margin-bottom:6px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; } td,th { padding:6px 8px; border-bottom:1px solid var(--line); text-align:left; }
+  code, pre { font-family:ui-monospace,monospace; } pre { background:var(--bg); padding:12px; border-radius:8px; overflow-x:auto; font-size:.85rem; }
+  .q { border-bottom:1px solid var(--line); padding:10px 0; } .q:last-child{border:0}
+  .q button { margin:4px 6px 0 0; padding:5px 10px; border-radius:8px; border:1px solid var(--line); background:none; color:var(--ink); cursor:pointer; }
+  .q button.ok { background:var(--new); color:#fff; border-color:var(--new); } .q button.bad { background:var(--del); color:#fff; border-color:var(--del); }
+  .why { color:var(--muted); font-size:.88rem; margin-top:4px; display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Linked List Çalışma Alanı</h1>
+  <p class="sub">Lab04'teki <code>SinglyLinkedList</code> ile aynı davranış: <code>head</code>, <code>tail</code>, <code>size</code>. İşlemleri dene, ne olduğunu izle.</p>
+
+  <div class="card">
+    <h2>Görselleştirici</h2>
+    <div class="info"><span id="iHead"></span><span id="iTail"></span><span id="iSize"></span></div>
+    <div class="stage"><div class="row" id="row"></div></div>
+    <div class="ctl">
+      <input id="val" type="number" placeholder="değer" value="10">
+      <input id="idx" type="number" placeholder="index" value="0">
+      <button onclick="op('addFirst')">addFirst</button>
+      <button onclick="op('addLast')">addLast</button>
+      <button onclick="op('add')">add(index)</button>
+      <button onclick="op('removeFirst')">removeFirst</button>
+      <button onclick="op('removeLast')">removeLast</button>
+      <button onclick="op('remove')">remove(index)</button>
+      <button onclick="op('get')" class="sec">get(index)</button>
+      <button onclick="op('indexOf')" class="sec">indexOf(değer)</button>
+      <button onclick="op('removeAll')">removeAll(değer)</button>
+      <button onclick="op('reverse')">reverse</button>
+      <button onclick="fill()" class="sec">Örnek doldur</button>
+      <button onclick="list=[];draw('Temizlendi.')" class="sec">Temizle</button>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <div class="card">
+    <h2>Hangi işlem ne kadar sürer?</h2>
+    <table>
+      <tr><th>İşlem</th><th>tail ile</th><th>Neden</th></tr>
+      <tr><td>addFirst</td><td>O(1)</td><td>Sadece head değişir.</td></tr>
+      <tr><td>addLast</td><td>O(1)</td><td>tail.next'e bağlanır. tail olmasa O(n).</td></tr>
+      <tr><td>removeFirst</td><td>O(1)</td><td>head = head.next.</td></tr>
+      <tr><td>removeLast</td><td>O(n)</td><td>Tek bağlı listede sondan bir önceki düğüme gitmek gerekir.</td></tr>
+      <tr><td>get / set / add(i) / remove(i)</td><td>O(n)</td><td>i. düğüme kadar yürünür.</td></tr>
+      <tr><td>indexOf / contains / removeAll</td><td>O(n)</td><td>Bütün liste gezilir.</td></tr>
+      <tr><td>reverse</td><td>O(n)</td><td>Her düğüm bir kez yeniden bağlanır.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sık yapılan hatalar</h2>
+    <ul>
+      <li>Son elemanı silince <code>tail</code>'i güncellemeyi unutmak.</li>
+      <li>Liste boşalınca <code>head</code> ve <code>tail</code>'i ikisini de <code>null</code> yapmamak.</li>
+      <li>İlk eklenen elemanda <code>head</code> ile <code>tail</code>'i aynı düğüme bağlamamak.</li>
+      <li><code>reverse</code>'de <code>next</code>'i bağlantıyı koparmadan önce saklamamak.</li>
+      <li><code>add(size, x)</code> geçerli, <code>get(size)</code> geçersiz: sınırlar farklı.</li>
+    </ul>
+    <h2 style="margin-top:14px">reverse mantığı</h2>
+<pre>Node prev = null, cur = head;
+tail = head;
+while (cur != null) {
+    Node next = cur.next;   // önce sakla
+    cur.next = prev;        // oku çevir
+    prev = cur;
+    cur = next;
+}
+head = prev;</pre>
+  </div>
+
+  <div class="card">
+    <h2>Mini test</h2>
+    <div id="quiz"></div>
+  </div>
+</main>
+
+<script>
+let list = [];
+const $ = id => document.getElementById(id);
+const val = () => parseInt($('val').value), idx = () => parseInt($('idx').value);
+
+function draw(msg, err, marks = {}) {
+  const row = $('row');
+  row.innerHTML = '';
+  list.forEach((v, i) => {
+    const c = document.createElement('div'); c.className = 'cell';
+    const p = document.createElement('div'); p.className = 'ptr';
+    const tags = [];
+    if (i === 0) tags.push('head');
+    if (i === list.length - 1) tags.push('tail');
+    p.textContent = tags.join(' / ');
+    const n = document.createElement('div');
+    n.className = 'node' + (marks.new === i ? ' new' : '') + (marks.hl === i ? ' hl' : '');
+    n.innerHTML = `<div class="v">${v}</div><div class="n">${i}</div>`;
+    c.append(p, n); row.append(c);
+    const a = document.createElement('div'); a.className = 'arrow'; row.append(a);
+  });
+  const nl = document.createElement('div'); nl.className = 'null';
+  nl.textContent = list.length ? 'null' : 'head = tail = null (boş liste)';
+  row.append(nl);
+  $('iHead').textContent = 'head → ' + (list.length ? list[0] : 'null');
+  $('iTail').textContent = 'tail → ' + (list.length ? list[list.length - 1] : 'null');
+  $('iSize').textContent = 'size = ' + list.length;
+  $('log').textContent = msg || '';
+  $('log').className = err ? 'err' : '';
+}
+
+function op(name) {
+  const v = val(), i = idx();
+  const needV = ['addFirst','addLast','add','indexOf','removeAll'].includes(name);
+  const needI = ['add','remove','get'].includes(name);
+  if (needV && isNaN(v)) return draw('null geçersiz: IllegalArgumentException', true);
+  if (needI && isNaN(i)) return draw('Bir index gir.', true);
+  const empty = () => draw('Liste boş: NoSuchElementException', true);
+  switch (name) {
+    case 'addFirst': list.unshift(v); return draw(`addFirst(${v})  →  yeni head`, false, {new:0});
+    case 'addLast': list.push(v); return draw(`addLast(${v})  →  tail.next = yeni düğüm, tail güncellendi`, false, {new:list.length-1});
+    case 'add':
+      if (i < 0 || i > list.length) return draw(`add(${i}, ${v}): IndexOutOfBoundsException (geçerli: 0..${list.length})`, true);
+      list.splice(i, 0, v); return draw(`add(${i}, ${v})`, false, {new:i});
+    case 'removeFirst': if (!list.length) return empty(); return draw(`removeFirst() → ${list.shift()}`);
+    case 'removeLast': if (!list.length) return empty(); return draw(`removeLast() → ${list.pop()}  (tail bir öncekine taşındı)`);
+    case 'remove':
+      if (i < 0 || i >= list.length) return draw(`remove(${i}): IndexOutOfBoundsException (geçerli: 0..${list.length-1})`, true);
+      return draw(`remove(${i}) → ${list.splice(i, 1)[0]}`);
+    case 'get':
+      if (i < 0 || i >= list.length) return draw(`get(${i}): IndexOutOfBoundsException (geçerli: 0..${list.length-1})`, true);
+      return draw(`get(${i}) → ${list[i]}  (${i} adım yürüdü)`, false, {hl:i});
+    case 'indexOf': { const k = list.indexOf(v); return draw(`indexOf(${v}) → ${k}`, false, {hl:k}); }
+    case 'removeAll': { const b = list.length; list = list.filter(x => x !== v); return draw(`removeAll(${v}) → ${b - list.length} silindi`); }
+    case 'reverse': list.reverse(); return draw('reverse(): düğümler yeniden bağlandı, head ile tail yer değiştirdi');
+  }
+}
+function fill() { list = [10, 20, 30, 20, 40]; draw('Örnek liste: [10, 20, 30, 20, 40]'); }
+
+const questions = [
+  ['Tek bağlı listede removeLast neden O(n)?', ['tail null olabilir', 'Sondan bir önceki düğüme ulaşmak için baştan yürünür', 'Bütün düğümler kopyalanır'], 1, 'Düğümler sadece ileri gösterir; tail.prev yok.'],
+  ['Tek elemanlı listede removeFirst sonrası ne olmalı?', ['Sadece head = null', 'head ve tail = null, size = 0', 'Sadece size = 0'], 1, 'tail güncellenmezse eski düğümü göstermeye devam eder.'],
+  ['[1,2,3] listesinde add(3, 9) ne yapar?', ['IndexOutOfBoundsException', '9 sona eklenir', '3. elemanı değiştirir'], 1, 'add için 0..size geçerli; index = size sona ekler.'],
+  ['[1,2,3] listesinde get(3) ne yapar?', ['IndexOutOfBoundsException', 'null döner', '3 döner'], 0, 'get için 0..size-1 geçerli.'],
+  ['reverse() sonrası addLast(x) doğru çalışması için ne şart?', ['tail eski head olmalı', 'size sıfırlanmalı', 'head null olmalı'], 0, 'reverse head ve tail rollerini değiştirir.']
+];
+$('quiz').innerHTML = questions.map((q, qi) => `<div class="q"><b>${qi+1}. ${q[0]}</b><br>` +
+  q[1].map((o, oi) => `<button onclick="ans(${qi},${oi},this)">${o}</button>`).join('') +
+  `<div class="why" id="w${qi}">${q[3]}</div></div>`).join('');
+function ans(qi, oi, b) {
+  b.classList.add(oi === questions[qi][2] ? 'ok' : 'bad');
+  $('w' + qi).style.display = 'block';
+}
+fill();
+</script>
+</body>
+</html>
